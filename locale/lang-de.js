@@ -6,7 +6,7 @@
 
     written by Jens Mönig
 
-    Copyright (C) 2019 by Jens Mönig
+    Copyright (C) 2020 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -185,7 +185,7 @@ SnapTranslator.dict.de = {
     'translator_e-mail':
         'jens@moenig.org, jadga.huegle@sap.com', // optional
     'last_changed':
-        '2019-12-03', // this, too, will appear in the Translators tab
+        '2020-01-28', // this, too, will appear in the Translators tab
 
     // GUI
     // control bar:
@@ -580,7 +580,7 @@ SnapTranslator.dict.de = {
     'warp %c':
         'Warp %c',
     'when I start as a clone':
-        'Wenn ich geklont werde',
+        'Wenn ich als Klon starte',
     'create a clone of %cln':
         'klone %cln',
     'a new clone of %cln':
