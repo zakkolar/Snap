@@ -267,6 +267,8 @@ IDE_Morph.prototype.init = function (isAutoFill) {
 
     this.savingPreferences = true; // for bh's infamous "Eisenbergification"
 
+    this.microworld = null;
+
     // initialize inherited properties:
     IDE_Morph.uber.init.call(this);
 
@@ -611,6 +613,22 @@ IDE_Morph.prototype.createLogo = function () {
 
     this.logo.mouseClickLeft = function () {
         myself.snapMenu();
+    };
+
+    this.logo.userMenu = function () {
+        var menu = new MenuMorph(myself);
+        if (myself.microworld && myself.microworld.isActive) {
+            menu.addItem(
+                'Escape microworld',
+                function () { myself.microworld.escape(); }
+            );
+        } else {
+            menu.addItem(
+                'Enter microworld',
+                function () { myself.microworld.enter(); }
+            );
+        }
+        return menu;
     };
 
     this.logo.color = new Color();
@@ -4348,7 +4366,7 @@ IDE_Morph.prototype.openProjectString = function (str) {
         function () {
             myself.rawOpenProjectString(str);
             msg.destroy();
-        },
+        }
     ]);
 };
 

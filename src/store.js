@@ -559,7 +559,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
     /* Watchers */
 
     model.sprites.childrenNamed('watcher').forEach(function (model) {
-        var watcher, color, target, hidden, extX, extY;
+        var watcher, color, target, hidden, extX, extY, microworld;
 
         color = myself.loadColor(model.attributes.color);
         target = Object.prototype.hasOwnProperty.call(
@@ -626,6 +626,37 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
             watcher.cellMorph.contentsMorph.handle.drawNew();
         }
     });
+
+    /* MicroWorld definition */
+    project.microworld = new MicroWorld();
+    model.microworld = model.project.childNamed('microworld');
+    if (model.microworld) {
+        if (model.microworld.attributes['zoom']) {
+            project.microworld.zoom =
+                parseFloat(model.microworld.attributes['zoom']);
+        }
+        if (model.microworld.attributes['enableKeyboard']) {
+            project.microworld.enableKeyboard =
+                model.microworld.attributes['enableKeyboard'] === 'true';
+        }
+        if (model.microworld.attributes['enterOnLoad']) {
+            project.microworld.enterOnLoad =
+                model.microworld.attributes['enterOnLoad'] === 'true';
+        }
+        project.microworld.customJS =
+            Function.apply(
+                null,
+                [ model.microworld.childNamed('customJS').contents ]
+            );
+        if (model.microworld.childNamed('hiddenMorphs')) {
+            project.microworld.hiddenMorphs =
+                model.microworld.childNamed('hiddenMorphs').contents.split(',');
+        }
+        if (model.microworld.childNamed('blockSpecs')) {
+            project.microworld.blockSpecs =
+                model.microworld.childNamed('blockSpecs').contents.split(',');
+        }
+    }
 
     // clear sprites' inherited methods caches, if any
     myself.project.stage.children.forEach(function (sprite) {
@@ -1646,6 +1677,10 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     if (ide.globalVariables) {
         ide.globalVariables = project.globalVariables;
     }
+
+    ide.microworld = project.microworld;
+    project.microworld.ide = ide;
+
     if (stage) {
         stage.destroy();
     }
