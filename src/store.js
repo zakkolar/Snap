@@ -1710,6 +1710,10 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     //})
 
     ide.world().keyboardReceiver = project.stage;
+
+    if (stage.microworld && stage.microworld.enterOnLoad) {
+        stage.microworld.enter();
+    }
 };
 
 // SnapSerializer XML-representation of objects:
