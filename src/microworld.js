@@ -40,6 +40,8 @@ MicroWorld.prototype.enter = function () {
     }
 
     this.createPalette();
+    this.loadCustomBlocks();
+
     this.hideAllMorphs();
     this.refreshIDE();
 };
@@ -142,6 +144,24 @@ MicroWorld.prototype.createPalette = function () {
         };
     }
 };
+
+MicroWorld.prototype.loadCustomBlocks = function () {
+    // We load our custom blocks from the stage.
+    // They're watermarked with 'microworld' in their codeHeader
+    var sprite = this.ide.currentSprite,
+        blocks = this.ide.stage.globalBlocks.filter(
+            function (block) {
+                return block.codeHeader === 'microworld';
+            }
+        );
+
+    blocks.forEach(function (block) {
+        sprite.blocksCache['microworld'].push(block.templateInstance());
+    });
+
+    sprite.refreshMicroWorldPalette();
+};
+ 
 
 MicroWorld.prototype.refreshIDE = function () {
     // This is a hack. And it's not very pretty.
