@@ -7509,6 +7509,8 @@ StageMorph.prototype.init = function (globals) {
     this.acceptsDrops = false;
     this.setColor(new Color(255, 255, 255));
     this.fps = this.frameRate;
+
+    this.microworld = null;
 };
 
 // StageMorph scaling

@@ -267,8 +267,6 @@ IDE_Morph.prototype.init = function (isAutoFill) {
 
     this.savingPreferences = true; // for bh's infamous "Eisenbergification"
 
-    this.microworld = null;
-
     // initialize inherited properties:
     IDE_Morph.uber.init.call(this);
 
@@ -617,15 +615,15 @@ IDE_Morph.prototype.createLogo = function () {
 
     this.logo.userMenu = function () {
         var menu = new MenuMorph(myself);
-        if (myself.microworld && myself.microworld.isActive) {
+        if (myself.stage.microworld && myself.stage.microworld.isActive) {
             menu.addItem(
                 'Escape microworld',
-                function () { myself.microworld.escape(); }
+                function () { myself.stage.microworld.escape(); }
             );
         } else {
             menu.addItem(
                 'Enter microworld',
-                function () { myself.microworld.enter(); }
+                function () { myself.stage.microworld.enter(); }
             );
         }
         return menu;

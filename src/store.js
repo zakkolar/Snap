@@ -628,32 +628,29 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
     });
 
     /* MicroWorld definition */
-    project.microworld = new MicroWorld();
+    project.stage.microworld = new MicroWorld();
     model.microworld = model.project.childNamed('microworld');
     if (model.microworld) {
         if (model.microworld.attributes['zoom']) {
-            project.microworld.zoom =
+            project.stage.microworld.zoom =
                 parseFloat(model.microworld.attributes['zoom']);
         }
         if (model.microworld.attributes['enableKeyboard']) {
-            project.microworld.enableKeyboard =
+            project.stage.microworld.enableKeyboard =
                 model.microworld.attributes['enableKeyboard'] === 'true';
         }
         if (model.microworld.attributes['enterOnLoad']) {
-            project.microworld.enterOnLoad =
+            project.stage.microworld.enterOnLoad =
                 model.microworld.attributes['enterOnLoad'] === 'true';
         }
-        project.microworld.customJS =
-            Function.apply(
-                null,
-                [ model.microworld.childNamed('customJS').contents ]
-            );
+        project.stage.microworld.customJS =
+                model.microworld.childNamed('customJS').contents;
         if (model.microworld.childNamed('hiddenMorphs')) {
-            project.microworld.hiddenMorphs =
+            project.stage.microworld.hiddenMorphs =
                 model.microworld.childNamed('hiddenMorphs').contents.split(',');
         }
         if (model.microworld.childNamed('blockSpecs')) {
-            project.microworld.blockSpecs =
+            project.stage.microworld.blockSpecs =
                 model.microworld.childNamed('blockSpecs').contents.split(',');
         }
     }
@@ -1678,8 +1675,8 @@ SnapSerializer.prototype.openProject = function (project, ide) {
         ide.globalVariables = project.globalVariables;
     }
 
-    ide.microworld = project.microworld;
-    project.microworld.ide = ide;
+    stage.microworld = project.stage.microworld;
+    stage.microworld.ide = ide;
 
     if (stage) {
         stage.destroy();
@@ -1789,6 +1786,7 @@ StageMorph.prototype.toXML = function (serializer) {
             '<code>%</code>' +
             '<blocks>%</blocks>' +
             '<variables>%</variables>' +
+            '%' + // microworld
             '</project>',
         (ide && ide.projectName) ? ide.projectName : localize('Untitled'),
         serializer.app,
@@ -1837,7 +1835,9 @@ StageMorph.prototype.toXML = function (serializer) {
         code('codeMappings'),
         serializer.store(this.globalBlocks),
         (ide && ide.globalVariables) ?
-                    serializer.store(ide.globalVariables) : ''
+                    serializer.store(ide.globalVariables) : '',
+        this.microworld ?
+            serializer.store(this.microworld) : '<wat></wat>'
     );
 };
 
@@ -2406,3 +2406,23 @@ CommentMorph.prototype.toXML = function (serializer) {
         serializer.escape(this.text())
     );
 };
+
+// MicroWorld
+
+MicroWorld.prototype.toXML = function (serializer) {
+    return serializer.format(
+        '<microworld zoom="@" enableKeyboard="@" enterOnLoad="@">' +
+        '<customJS>%</customJS>' +
+        '<hiddenMorphs>%</hiddenMorphs>' +
+        '<blockSpecs>%</blockSpecs>' +
+        '</microworld>',
+        this.zoom,
+        this.enableKeyboard,
+        this.enterOnLoad,
+        this.customJS,
+        this.hiddenMorphs.join(','),
+        this.blockSpecs.join(',')
+    );
+};
+
+

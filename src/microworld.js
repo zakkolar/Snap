@@ -13,11 +13,6 @@ MicroWorld.prototype.init = function () {
     this.isActive = false;
 };
 
-MicroWorld.prototype.toXML = function () {
-    //TODO
-    return '';
-};
-
 MicroWorld.prototype.enter = function () {
     var ide = this.ide,
         myself = this;
@@ -34,7 +29,10 @@ MicroWorld.prototype.enter = function () {
     ide.currentSprite.scripts.updateToolbar();
 
     if (this.customJS) {
-        this.customJS.call(ide);
+        Function.apply(
+                null,
+                [ this.customJS ]
+            ).call(ide);
     }
 
     if (this.zoom) {
@@ -153,7 +151,7 @@ MicroWorld.prototype.refreshIDE = function () {
 };
 
 MicroWorld.prototype.setBlocksScale = function (zoom) {
-    // !!! EXPERIMENTAL !!!
+    // !!! EXPERIMENTAL !!! sets blocks scale without reloading the project
     SyntaxElementMorph.prototype.oldScale = SyntaxElementMorph.prototype.scale;
     SyntaxElementMorph.prototype.setScale(zoom);
     CommentMorph.prototype.refreshScale();
