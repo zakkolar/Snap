@@ -620,7 +620,7 @@ IDE_Morph.prototype.createLogo = function () {
                 'Escape microworld',
                 function () { myself.stage.microworld.escape(); }
             );
-        } else {
+        } else if (myself.stage.microworld) {
             menu.addItem(
                 'Enter microworld',
                 function () { myself.stage.microworld.enter(); }
@@ -3533,6 +3533,11 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'Select a sound from the media library'
     );
+
+    if (this.stage.microworld && this.stage.microworld.isActive) {
+        // Only show items specified by the microworld
+        this.stage.microworld.setupMenu('projectMenu', menu);
+    }
 
     menu.popup(world, pos);
 };

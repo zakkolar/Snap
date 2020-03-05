@@ -6,6 +6,7 @@ MicroWorld.prototype.init = function () {
     this.ide = null;
     this.hiddenMorphs = [];
     this.blockSpecs = [];
+    this.projectMenu = [];
     this.enableKeyboard = true;
     this.customJS = null;
     this.zoom = null;
@@ -197,6 +198,24 @@ MicroWorld.prototype.setBlocksScale = function (zoom) {
             });
         }
     );
+};
+
+MicroWorld.prototype.setupMenu = function (menuSelector, menu) {
+    // can't use Array >> filter because we may also want to reorder items
+    var items = [];
+    this[menuSelector].forEach(
+        function (itemLabel) {
+            var item = menu.items.find(
+                function (each) {
+                    return each[0] == itemLabel;
+                }
+            );
+            if (item) {
+                items.push(item);
+            }
+        }
+    );
+    menu.items = items;
 };
 
 MicroWorld.prototype.hideAllMorphs = function () {

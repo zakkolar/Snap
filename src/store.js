@@ -653,6 +653,10 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
             project.stage.microworld.blockSpecs =
                 model.microworld.childNamed('blockSpecs').contents.split(',');
         }
+        if (model.microworld.childNamed('projectMenu')) {
+            project.stage.microworld.projectMenu =
+                model.microworld.childNamed('projectMenu').contents.split(',');
+        }
     }
 
     // clear sprites' inherited methods caches, if any
@@ -2419,13 +2423,15 @@ MicroWorld.prototype.toXML = function (serializer) {
         '<customJS>%</customJS>' +
         '<hiddenMorphs>%</hiddenMorphs>' +
         '<blockSpecs>%</blockSpecs>' +
+        '<projectMenu>%</projectMenu>' +
         '</microworld>',
         this.zoom,
         this.enableKeyboard,
         this.enterOnLoad,
         this.customJS,
         this.hiddenMorphs.join(','),
-        this.blockSpecs.join(',')
+        this.blockSpecs.join(','),
+        this.projectMenu.join(',')
     );
 };
 
