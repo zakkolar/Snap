@@ -2662,6 +2662,7 @@ BlockMorph.prototype.userMenu = function () {
         proc = this.activeProcess(),
         vNames = proc && proc.context && proc.context.outerContext ?
                 proc.context.outerContext.variables.names() : [],
+        microworld = this.parentThatIsA(IDE_Morph).stage.microworld,
         alternatives,
         field,
         rcvr,
@@ -2986,6 +2987,62 @@ BlockMorph.prototype.userMenu = function () {
         },
         'open a new window\nwith a picture of this script'
     );
+
+    menu.addItem(
+        "turn into a block",
+        function () {
+            var target = this.scriptTarget(),
+                ide = myself.parentThatIsA(IDE_Morph),
+                topBlock = this;
+            ide.prompt('Block name?', function (name) {
+                var definition = new CustomBlockDefinition(name);
+                if (topBlock instanceof CommandBlockMorph ||
+                    topBlock instanceof CustomCommandBlockMorph) {
+                    definition.type = 'command';
+                    definition.body = Process.prototype.reify.call(
+                        null,
+                        topBlock.fullCopy(),
+                        new List(),
+                        true // ignore empty slots for custom block reification
+                    );
+                } else if (topBlock instanceof ReporterBlockMorph) {
+                    if (topBlock.isPredicate) {
+                        definition.type = 'predicate';
+                    } else {
+                        definition.type = 'reporter';
+                    }
+                    reportBlock =
+                        SpriteMorph.prototype.blockForSelector('doReport');
+                    reportBlock.silentReplaceInput(
+                        reportBlock.inputs()[0],
+                        topBlock.fullCopy()
+                    );
+                    definition.body = Process.prototype.reify.call(
+                        null,
+                        reportBlock,
+                        new List(),
+                        true // ignore empty slots for custom block reification
+                    );
+                }
+                definition.category = 'other';
+                definition.isGlobal = true;
+                definition.body.outerContext = null;
+                ide.stage.globalBlocks.push(definition);
+                if (ide.stage.microworld && ide.stage.microworld.isActive) {
+                    definition.codeHeader = 'microworld'; // watermark
+                    ide.currentSprite.blocksCache['microworld'].push(
+                        definition.templateInstance()
+                    );
+                    ide.currentSprite.refreshMicroWorldPalette();
+                }
+                editor = new BlockEditorMorph(definition, target);
+                editor.firstTime = true;
+                editor.popUp();
+            });
+        },
+        'turn the block stack starting\nhere into a custom block.'
+    );
+
     if (shiftClicked) {
         menu.addItem(
             'download script',
@@ -3059,6 +3116,9 @@ BlockMorph.prototype.userMenu = function () {
             'code mapping...',
             'mapToCode'
         );
+    }
+    if (microworld && microworld.isActive) {
+        microworld.setupMenu('blockContextMenu', menu);
     }
     return menu;
 };

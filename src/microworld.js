@@ -7,6 +7,7 @@ MicroWorld.prototype.init = function () {
     this.hiddenMorphs = [];
     this.blockSpecs = [];
     this.projectMenu = [];
+    this.blockContextMenu = [];
     this.enableKeyboard = true;
     this.customJS = null;
     this.zoom = null;
@@ -201,13 +202,14 @@ MicroWorld.prototype.setBlocksScale = function (zoom) {
 };
 
 MicroWorld.prototype.setupMenu = function (menuSelector, menu) {
+    // Only keep the items whose label is included in the `menuSelector` array
     // can't use Array >> filter because we may also want to reorder items
     var items = [];
     this[menuSelector].forEach(
         function (itemLabel) {
             var item = menu.items.find(
                 function (each) {
-                    return each[0] == itemLabel;
+                    return each[0].toString() === itemLabel;
                 }
             );
             if (item) {
