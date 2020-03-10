@@ -2674,7 +2674,11 @@ SpriteMorph.prototype.makeBlock = function () {
     // prompt the user to make a new block
     var ide = this.parentThatIsA(IDE_Morph),
         stage = this.parentThatIsA(StageMorph),
-        category = ide.currentCategory,
+        microworld = stage.microworld,
+        category =
+            (microworld && microworld.isActive) ?
+                'other' :
+                ide.currentCategory,
         clr = SpriteMorph.prototype.blockColor[category],
         myself = this,
         dlg;
@@ -2682,14 +2686,26 @@ SpriteMorph.prototype.makeBlock = function () {
         null,
         function (definition) {
             if (definition.spec !== '') {
-                if (definition.isGlobal) {
+                if (microworld && microworld.isActive) {
+                    definition.codeHeader = 'microworld'; // watermark it
                     stage.globalBlocks.push(definition);
+                    myself.blocksCache['microworld'].push(
+                        definition.templateInstance()
+                    );
+                    myself.refreshMicroWorldPalette();
+                    myself.hideSearchButton();
+                    editor = new BlockEditorMorph(definition, sprite);
+                    editor.popUp();
                 } else {
-                    myself.customBlocks.push(definition);
+                    if (definition.isGlobal) {
+                        stage.globalBlocks.push(definition);
+                    } else {
+                        myself.customBlocks.push(definition);
+                    }
+                    ide.flushPaletteCache();
+                    ide.refreshPalette();
+                    new BlockEditorMorph(definition, myself).popUp();
                 }
-                ide.flushPaletteCache();
-                ide.refreshPalette();
-                new BlockEditorMorph(definition, myself).popUp();
             }
         },
         myself

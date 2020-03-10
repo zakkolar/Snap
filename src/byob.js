@@ -1618,6 +1618,12 @@ function BlockDialogMorph(target, action, environment) {
 }
 
 BlockDialogMorph.prototype.init = function (target, action, environment) {
+    var microworld = environment.parentThatIsA(IDE_Morph).stage.microworld,
+        simpleBlockDialog =
+            !isNil(microworld) &&
+            microworld.isActive &&
+            microworld.simpleBlockDialog;
+
     // additional properties:
     this.blockType = 'command';
     this.category = 'other';
@@ -1638,18 +1644,25 @@ BlockDialogMorph.prototype.init = function (target, action, environment) {
 
     this.types = new AlignmentMorph('row', this.padding);
     this.add(this.types);
-    this.scopes = new AlignmentMorph('row', this.padding);
-    this.add(this.scopes);
 
-    this.categories = new BoxMorph();
-    this.categories.color = SpriteMorph.prototype.paletteColor.lighter(8);
-    this.categories.borderColor = this.categories.color.lighter(40);
-    this.createCategoryButtons();
-    this.fixCategoriesLayout();
-    this.add(this.categories);
+    if (!simpleBlockDialog) {
+        this.scopes = new AlignmentMorph('row', this.padding);
+        this.add(this.scopes);
+
+        this.categories = new BoxMorph();
+        this.categories.color = SpriteMorph.prototype.paletteColor.lighter(8);
+        this.categories.borderColor = this.categories.color.lighter(40);
+        this.createCategoryButtons();
+        this.fixCategoriesLayout();
+        this.add(this.categories);
+    }
 
     this.createTypeButtons();
-    this.createScopeButtons();
+
+    if (!simpleBlockDialog) {
+        this.createScopeButtons();
+    }
+
     this.fixLayout();
 };
 
@@ -2189,6 +2202,8 @@ BlockEditorMorph.prototype.justDropped = function () {
 
 BlockEditorMorph.prototype.accept = function (origin) {
     // check DialogBoxMorph comment for accept()
+    var microworld = this.target.parentThatIsA(IDE_Morph).stage.microworld;
+
     if (origin instanceof CursorMorph) {return; }
     if (this.action) {
         if (typeof this.target === 'function') {
@@ -2205,6 +2220,12 @@ BlockEditorMorph.prototype.accept = function (origin) {
             }
         }
     }
+
+    if (microworld && microworld.isActive) {
+        this.target.refreshMicroWorldPalette();
+        microworld.hideAllMorphs();
+    }
+
     this.close();
 };
 
@@ -2338,6 +2359,10 @@ BlockEditorMorph.prototype.updateDefinition = function () {
     ide = this.target.parentThatIsA(IDE_Morph);
     ide.flushPaletteCache();
     ide.refreshPalette();
+    if (ide.stage.microworld && ide.stage.microworld.isActive) {
+        ide.currentSprite.refreshMicroWorldPalette();
+        ide.stage.microworld.hideAllMorphs();
+    }
 };
 
 BlockEditorMorph.prototype.context = function (prototypeHat) {
@@ -3113,8 +3138,9 @@ InputSlotDialogMorph.prototype.createTypeButtons = function () {
     var block,
         arrow,
         myself = this,
+        editor = this.environment.parentThatIsA(BlockEditorMorph),
+        microworld = editor.target.parentThatIsA(StageMorph).microworld,
         clr = SpriteMorph.prototype.blockColor[this.category];
-
 
     block = new JaggedBlockMorph(localize('Title text'));
     block.setColor(clr);
@@ -3132,46 +3158,48 @@ InputSlotDialogMorph.prototype.createTypeButtons = function () {
         function () {return myself.fragment.type !== null; }
     );
 
-    // add an arrow button for long form/short form toggling
-    arrow = new ArrowMorph(
-        'right',
-        PushButtonMorph.prototype.fontSize + 4,
-        2
-    );
-    arrow.noticesTransparentClick = true;
-    this.types.add(arrow);
-    this.types.fixLayout();
+    if (!microworld || !microworld.isActive || !microworld.simpleBlockDialog) {
+        // add an arrow button for long form/short form toggling
+        arrow = new ArrowMorph(
+            'right',
+            PushButtonMorph.prototype.fontSize + 4,
+            2
+        );
+        arrow.noticesTransparentClick = true;
+        this.types.add(arrow);
+        this.types.fixLayout();
 
-    // configure arrow button
-    arrow.refresh = function () {
-        if (myself.fragment.type === null) {
-            myself.isExpanded = false;
-            arrow.hide();
-            myself.drawNew();
-        } else {
-            arrow.show();
-            if (myself.isExpanded) {
-                arrow.direction = 'down';
+        // configure arrow button
+        arrow.refresh = function () {
+            if (myself.fragment.type === null) {
+                myself.isExpanded = false;
+                arrow.hide();
+                myself.drawNew();
             } else {
-                arrow.direction = 'right';
+                arrow.show();
+                if (myself.isExpanded) {
+                    arrow.direction = 'down';
+                } else {
+                    arrow.direction = 'right';
+                }
+                arrow.drawNew();
+                arrow.changed();
             }
-            arrow.drawNew();
-            arrow.changed();
-        }
-    };
+        };
 
-    arrow.mouseClickLeft = function () {
-        if (arrow.isVisible) {
-            myself.isExpanded = !myself.isExpanded;
-            myself.types.children.forEach(function (c) {
-                c.refresh();
-            });
-            myself.drawNew();
-            myself.edit();
-        }
-    };
+        arrow.mouseClickLeft = function () {
+            if (arrow.isVisible) {
+                myself.isExpanded = !myself.isExpanded;
+                myself.types.children.forEach(function (c) {
+                    c.refresh();
+                });
+                myself.drawNew();
+                myself.edit();
+            }
+        };
 
-    arrow.refresh();
+        arrow.refresh();
+    }
 };
 
 InputSlotDialogMorph.prototype.addTypeButton

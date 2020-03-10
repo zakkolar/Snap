@@ -643,6 +643,10 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
             project.stage.microworld.enterOnLoad =
                 model.microworld.attributes['enterOnLoad'] === 'true';
         }
+        if (model.microworld.attributes['simpleBlockDialog']) {
+            project.stage.microworld.simpleBlockDialog =
+                model.microworld.attributes['simpleBlockDialog'] === 'true';
+        }
         project.stage.microworld.customJS =
                 model.microworld.childNamed('customJS').contents;
         if (model.microworld.childNamed('hiddenMorphs')) {
@@ -660,6 +664,19 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
         if (model.microworld.childNamed('blockContextMenu')) {
             project.stage.microworld.blockContextMenu =
                 model.microworld.childNamed('blockContextMenu').contents.split(',');
+        }
+        if (model.microworld.childNamed('buttons')) {
+            model.buttons = model.microworld.require('buttons');
+            model.buttons.childrenNamed('button').forEach(
+                function (model) {
+                    project.stage.microworld.buttons.push(
+                        {
+                            label: model.attributes.label,
+                            action: model.contents
+                        }
+                    );
+                }
+            );
         }
     }
 
@@ -2423,21 +2440,33 @@ CommentMorph.prototype.toXML = function (serializer) {
 
 MicroWorld.prototype.toXML = function (serializer) {
     return serializer.format(
-        '<microworld zoom="@" enableKeyboard="@" enterOnLoad="@">' +
+        '<microworld zoom="@" enableKeyboard="@" enterOnLoad="@" ' +
+        'simpleBlockDialog ="@">' +
         '<customJS>%</customJS>' +
         '<hiddenMorphs>%</hiddenMorphs>' +
         '<blockSpecs>%</blockSpecs>' +
         '<projectMenu>%</projectMenu>' +
         '<blockContextMenu>%</blockContextMenu>' +
+        '<buttons>%</buttons>' +
         '</microworld>',
         this.zoom,
         this.enableKeyboard,
         this.enterOnLoad,
+        this.simpleBlockDialog,
         this.customJS,
         this.hiddenMorphs.join(','),
         this.blockSpecs.join(','),
         this.projectMenu.join(','),
-        this.blockContextMenu.join(',')
+        this.blockContextMenu.join(','),
+        this.buttons.reduce(
+            function (xml, button) {
+                return xml +
+                    '<button label="' + button.label + '">' +
+                    button.action +
+                    '</button>';
+            },
+            ''
+        )
     );
 };
 

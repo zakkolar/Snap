@@ -8,7 +8,9 @@ MicroWorld.prototype.init = function () {
     this.blockSpecs = [];
     this.projectMenu = [];
     this.blockContextMenu = [];
+    this.buttons = [];
     this.enableKeyboard = true;
+    this.simpleBlockDialog = false;
     this.customJS = null;
     this.zoom = null;
     this.enterOnLoad = false;
@@ -37,8 +39,17 @@ MicroWorld.prototype.enter = function () {
             ).call(ide);
     }
 
+    if (this.buttons.length > 0) {
+        this.makeButtons();
+    }
+
     if (this.zoom) {
         this.setBlocksScale(this.zoom);
+    }
+
+    if (this.simpleBlockDialog) {
+        // Never launch in expanded form
+        InputSlotDialogMorph.prototype.isLaunchingExpanded = false;
     }
 
     this.createPalette();
@@ -199,6 +210,36 @@ MicroWorld.prototype.setBlocksScale = function (zoom) {
             });
         }
     );
+};
+
+MicroWorld.prototype.makeButtons = function () {
+    var sprite = this.ide.currentSprite,
+        sf = sprite.scripts.parentThatIsA(ScrollFrameMorph);
+
+    if (!sprite.buttons) {
+        sprite.buttons = [];
+    }
+
+    this.buttons.forEach(
+        function (definition) {
+            var button = new PushButtonMorph(
+                sprite,
+                Function.apply(
+                    null,
+                    [ definition.action ]
+                ),
+                definition.label
+            );
+
+            if (!sprite.buttons[definition.label]) {
+                sf.toolBar.add(button);
+            }
+
+            sprite.buttons[definition.label] = button;
+        }
+    );
+
+    sf.toolBar.fixLayout();
 };
 
 MicroWorld.prototype.setupMenu = function (menuSelector, menu) {
