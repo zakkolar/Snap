@@ -7315,11 +7315,16 @@ ScriptsMorph.prototype.wantsDropOf = function (aMorph) {
 };
 
 ScriptsMorph.prototype.reactToDropOf = function (droppedMorph, hand) {
+    var oldBounds = this.bounds;
     if (droppedMorph instanceof BlockMorph ||
             droppedMorph instanceof CommentMorph) {
         droppedMorph.snap(hand);
     }
     this.adjustBounds();
+    if (!this.bounds.eq(oldBounds)) {
+        this.scrollIntoView();
+        this.adjustBounds();
+    }
 };
 
 // ScriptsMorph events
