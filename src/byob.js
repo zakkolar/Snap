@@ -2204,6 +2204,8 @@ BlockEditorMorph.prototype.accept = function (origin) {
     // check DialogBoxMorph comment for accept()
     var microworld = this.target.parentThatIsA(IDE_Morph).stage.microworld;
 
+    //this.updateDefinition();
+
     if (origin instanceof CursorMorph) {return; }
     if (this.action) {
         if (typeof this.target === 'function') {
@@ -2316,7 +2318,19 @@ BlockEditorMorph.prototype.updateDefinition = function () {
         oldSpec = this.definition.blockSpec(),
         pos = this.body.contents.position(),
         element,
-        myself = this;
+        myself = this,
+        ide = this.target.parentThatIsA(IDE_Morph);
+
+    // Add to palette
+    if (this.definition.isGlobal) {
+        if (!contains(ide.stage.globalBlocks, this.definition)) {
+            ide.stage.globalBlocks.push(this.definition);
+        }
+    } else {
+        if (!contains(this.target.customBlocks, this.definition)) {
+            this.target.customBlocks.push(this.definition);
+        }
+    }
 
     this.definition.receiver = this.target; // only for serialization
     this.definition.spec = this.prototypeSpec();
@@ -2356,7 +2370,6 @@ BlockEditorMorph.prototype.updateDefinition = function () {
 
     this.definition.body = this.context(head);
     this.refreshAllBlockInstances(oldSpec);
-    ide = this.target.parentThatIsA(IDE_Morph);
     ide.flushPaletteCache();
     ide.refreshPalette();
     if (ide.stage.microworld && ide.stage.microworld.isActive) {

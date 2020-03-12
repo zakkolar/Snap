@@ -6872,13 +6872,6 @@ ScriptsMorph.prototype.userMenu = function () {
                     null,
                     function (definition) {
                         if (definition.spec !== '') {
-                            if (definition.isGlobal) {
-                                stage.globalBlocks.push(definition);
-                            } else {
-                                obj.customBlocks.push(definition);
-                            }
-                            ide.flushPaletteCache();
-                            ide.refreshPalette();
                             new BlockEditorMorph(definition, obj).popUp();
                         }
                     },

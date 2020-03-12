@@ -2697,13 +2697,6 @@ SpriteMorph.prototype.makeBlock = function () {
                     editor = new BlockEditorMorph(definition, sprite);
                     editor.popUp();
                 } else {
-                    if (definition.isGlobal) {
-                        stage.globalBlocks.push(definition);
-                    } else {
-                        myself.customBlocks.push(definition);
-                    }
-                    ide.flushPaletteCache();
-                    ide.refreshPalette();
                     new BlockEditorMorph(definition, myself).popUp();
                 }
             }
