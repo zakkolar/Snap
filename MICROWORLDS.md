@@ -28,7 +28,7 @@ regular project file. Like this:
 Scroll to the bottom of this document for a complete example, or check out this
 one in your browser:
 
-* [http://microworld.edc.org#open:example.xml](Example add-subtract microworld)
+* [Example add-subtract microworld](http://microworld.edc.org#open:example.xml)
 
 ### Attributes
 
