@@ -5147,7 +5147,8 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
             this.spriteBar,
             this.palette,
             this.categories
-        ];
+        ],
+        microworld = this.stage.microworld;
 
     this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
 
@@ -5204,6 +5205,10 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         }
         // update undrop controls
         this.currentSprite.scripts.updateToolbar();
+
+        if (!isNil(microworld) && microworld.isActive) {
+            microworld.hideAllMorphs();
+        }
     }
     this.setExtent(this.world().extent()); // resume trackChanges
 };
