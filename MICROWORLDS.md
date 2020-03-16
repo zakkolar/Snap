@@ -46,44 +46,44 @@ block editor where only one category and input type is available.
 
 The `microworld` tag accepts the following embedded tags:
 
-* **<customJS>**: any JS written inside this tag is going to run every time the
+* `<customJS>`: any JS written inside this tag is going to run every time the
 microworld is entered. The `this` pseudovariable points to the IDE.
-* **<hiddenMorphs>**: a comma-separated list of selectors that define parts of
+* `<hiddenMorphs>`: a comma-separated list of selectors that define parts of
 the UI that are going to be hidden. The complete list of supported selectors is:
-  - **spriteBar**: the sprite properties bar, where you can define its name and
+  - `spriteBar`: the sprite properties bar, where you can define its name and
 rotation style, and where the *Scripts, Costumes* and *Sounds* tabs live.
-  - **spriteCorral**: the area under the *Stage*, where you can see and select
+  - `spriteCorral`: the area under the *Stage*, where you can see and select
 all the sprites in your project, as well as create new ones.
-  - **categoryList**: the area on top of the palette, where you can switch
+  - `categoryList`: the area on top of the palette, where you can switch
 between block categories.
-  - **makeBlockBUttons**: all *Make a block* buttons in the palette. Note that
+  - `makeBlockBUttons`: all *Make a block* buttons in the palette. Note that
 this doesn't hide the *make a block...* option in the scripting area context
 menu.
-  - **searchButton**: the magnifying glass icon at the top of the blocks
+  - `searchButton`: the magnifying glass icon at the top of the blocks
 palette.
-  - **steppingButton**: the button that lets you go into (and change the speed
+  - `steppingButton`: the button that lets you go into (and change the speed
 of) single stepping mode.
-  - **startButton**: the green flag button.
-  - **pauseButton**: the pause button, next to the green flag one.
-* **<blockSpecs>**: a comma-separated list of *specs* (or *selectors*, for
+  - `startButton`: the green flag button.
+  - `pauseButton`: the pause button, next to the green flag one.
+* `<blockSpecs>`: a comma-separated list of *specs* (or *selectors*, for
 primitive blocks) of the *only* blocks that you want the microworld to show to
 users. These will all be combined into a single category. Check out the *Finding
 out block specs and selectors* section for more details. To include vertical
 spaces into the palette just add a hyphen into the list, also separated by
 commas.
-* **<projectMenu>**: a comma-separated list of the *only* items that you want
+* `<projectMenu>`: a comma-separated list of the *only* items that you want
 the project menu to have. These items are described by their exact wording in
 English, so take special care of including punctuation (ex. *Open...*). To
 define a separator between two items, just add a *0* into the list, also
 separated by commas.
-* **<blockContextMenu>**: a comma-separated list of the *only* items that you
+* `<blockContextMenu>`: a comma-separated list of the *only* items that you
 want the block context menu to have. That is the menu that pops up when you
 right-click on a block. The item to duplicate just the block under your cursor
 has no text content, since it displays the image of the block itself. To refer
 to this one you need to write `[object HTMLCanvasElement]`. To define a
 separator between two items, just add a *0* into the list, also separated by
 commas.
-* **<buttons>**: a list of `<button>` tags that describe custom buttons to be
+* `<buttons>`: a list of `<button>` tags that describe custom buttons to be
 placed at the top right of the scripting area. Refer to the *Custom buttons*
 section for details.
 
@@ -174,3 +174,4 @@ attribute, as described in the *Attributes* section.
     </buttons>
   </microworld>
 </project>
+```
