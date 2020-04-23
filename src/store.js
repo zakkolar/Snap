@@ -669,12 +669,13 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
             model.buttons = model.microworld.require('buttons');
             model.buttons.childrenNamed('button').forEach(
                 function (model) {
-                    project.stage.microworld.buttons.push(
-                        {
-                            label: model.attributes.label,
-                            action: model.contents
-                        }
-                    );
+                    project.stage.microworld.buttons[
+                        model.attributes.placement].push(
+                            {
+                                label: model.attributes.label,
+                                action: model.contents
+                            }
+                        );
                 }
             );
         }
@@ -2461,9 +2462,8 @@ MicroWorld.prototype.toXML = function (serializer) {
         this.buttons.reduce(
             function (xml, button) {
                 return xml +
-                    '<button label="' + button.label + '">' +
-                    button.action +
-                    '</button>';
+                    '<button label="' + button.label + '" placement="' +
+                    button.placement + '">' + button.action + '</button>';
             },
             ''
         )

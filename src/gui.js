@@ -1867,6 +1867,18 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.corral.setHeight(this.bottom() - this.corral.top());
             this.corral.fixLayout();
         }
+
+        // microworld corral buttons frame
+        if (this.stage.microworld && this.stage.microworld.isActive) {
+            if (this.corralButtonsFrame) {
+                this.corralButtonsFrame.setPosition(this.corralBar.position());
+                this.corralButtonsFrame.setWidth(this.corralBar.width());
+                this.corralButtonsFrame.setHeight(
+                    this.bottom() - this.corralButtonsFrame.top()
+                );
+                this.corralButtonsFrame.fixLayout();
+            }
+        }
     }
 
     Morph.prototype.trackChanges = true;

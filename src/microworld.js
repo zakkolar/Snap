@@ -8,7 +8,11 @@ MicroWorld.prototype.init = function () {
     this.blockSpecs = [];
     this.projectMenu = [];
     this.blockContextMenu = [];
-    this.buttons = [];
+    this.buttons = {
+        'scripting-area': [],
+        'palette-bottom': [],
+        'corral': []
+    };
     this.enableKeyboard = true;
     this.simpleBlockDialog = false;
     this.customJS = null;
@@ -39,13 +43,7 @@ MicroWorld.prototype.enter = function () {
             ).call(ide);
     }
 
-    if (this.buttons.length > 0) {
-        this.makeButtons();
-    }
-
-    if (this.zoom) {
-        this.setBlocksScale(this.zoom);
-    }
+    if (this.zoom) { this.setBlocksScale(this.zoom); }
 
     if (this.simpleBlockDialog) {
         // Never launch in expanded form
@@ -54,6 +52,8 @@ MicroWorld.prototype.enter = function () {
 
     this.createPalette();
     this.loadCustomBlocks();
+
+    this.makeButtons();
 
     this.hideAllMorphs();
     this.refreshIDE();
@@ -69,6 +69,11 @@ MicroWorld.prototype.escape = function () {
         !(ide.getSetting('keyboard') === false);
 
     this.setBlocksScale(ide.getSetting('zoom') || 1);
+
+    if (ide.corralButtonsFrame) {
+        ide.corralButtonsFrame.destroy();
+        ide.corralButtonsFrame = null;
+    }
 
     this.hiddenMorphs.forEach(
         function (selector) {
@@ -120,6 +125,13 @@ MicroWorld.prototype.createPalette = function () {
         var aBlock = block(spec);
         if (aBlock) { blocks.push(aBlock); }
     });
+
+    if (this.buttons['palette-bottom'].length > 0) {
+        blocks.push("=");
+        this.buttons['palette-bottom'].forEach(function (definition) {
+            blocks.push(myself.makeButton(definition));
+        });
+    }
 
     blocks.push("=");
     blocks.push(sprite.makeBlockButton('microworld'));
@@ -174,7 +186,6 @@ MicroWorld.prototype.loadCustomBlocks = function () {
 
     sprite.refreshMicroWorldPalette();
 };
- 
 
 MicroWorld.prototype.refreshIDE = function () {
     // This is a hack. And it's not very pretty.
@@ -213,33 +224,65 @@ MicroWorld.prototype.setBlocksScale = function (zoom) {
 };
 
 MicroWorld.prototype.makeButtons = function () {
-    var sprite = this.ide.currentSprite,
-        sf = sprite.scripts.parentThatIsA(ScrollFrameMorph);
+    var ide = this.ide,
+        sprite = ide.currentSprite,
+        sf = sprite.scripts.parentThatIsA(ScrollFrameMorph),
+        myself = this;
 
     if (!sprite.buttons) {
         sprite.buttons = [];
     }
 
-    this.buttons.forEach(
+    this.buttons['scripting-area'].forEach(
         function (definition) {
-            var button = new PushButtonMorph(
-                sprite,
-                Function.apply(
-                    null,
-                    [ definition.action ]
-                ),
-                definition.label
-            );
-
-            if (!sprite.buttons[definition.label]) {
+            var button = myself.makeButton(definition);
+            if (!contains(sf.toolBar.children, button)) {
                 sf.toolBar.add(button);
+                sprite.buttons[definition.label] = button;
             }
-
-            sprite.buttons[definition.label] = button;
         }
     );
 
     sf.toolBar.fixLayout();
+
+    if (this.buttons['corral'].length > 0) {
+        if (!ide.corralButtonsFrame) { this.createCorralButtonsFrame(); }
+        this.buttons['corral'].forEach(
+            function (definition) {
+                var button = myself.makeButton(definition);
+                if (!contains(ide.corralButtonsFrame.contents.children, button))
+                {
+                    ide.corralButtonsFrame.addContents(button);
+                    sprite.buttons[definition.label] = button;
+                }
+            }
+        );
+    }
+
+};
+
+MicroWorld.prototype.createCorralButtonsFrame = function () {
+    var ide = this.ide,
+        sprite = ide.currentSprite;
+    ide.corralButtonsFrame =
+        new ScrollFrameMorph(null, null, sprite.sliderColor);
+    ide.corralButtonsFrame.setColor(sprite.paletteColor);
+    ide.add(ide.corralButtonsFrame);
+    ide.corralButtonsFrame.fixLayout = function () {
+        // TODO after lunch
+    };
+};
+
+MicroWorld.prototype.makeButton = function (definition) {
+    var sprite = this.ide.currentSprite;
+    return new PushButtonMorph(
+        sprite,
+        Function.apply(
+            null,
+            [ definition.action ]
+        ),
+        definition.label
+    );
 };
 
 MicroWorld.prototype.setupMenu = function (menuSelector, menu) {
