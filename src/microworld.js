@@ -9,8 +9,8 @@ MicroWorld.prototype.init = function () {
     this.projectMenu = [];
     this.blockContextMenu = [];
     this.buttons = {
-        'scripting-area': [],
-        'palette-bottom': [],
+        'scripts': [],
+        'palette': [],
         'corral': []
     };
     this.enableKeyboard = true;
@@ -48,6 +48,11 @@ MicroWorld.prototype.enter = function () {
     if (this.simpleBlockDialog) {
         // Never launch in expanded form
         InputSlotDialogMorph.prototype.isLaunchingExpanded = false;
+    }
+
+    if (ide.corralButtonsFrame) {
+        ide.corralButtonsFrame.destroy();
+        ide.corralButtonsFrame = null;
     }
 
     this.createPalette();
@@ -126,9 +131,9 @@ MicroWorld.prototype.createPalette = function () {
         if (aBlock) { blocks.push(aBlock); }
     });
 
-    if (this.buttons['palette-bottom'].length > 0) {
+    if (this.buttons['palette'].length > 0) {
         blocks.push("=");
-        this.buttons['palette-bottom'].forEach(function (definition) {
+        this.buttons['palette'].forEach(function (definition) {
             blocks.push(myself.makeButton(definition));
         });
     }
@@ -233,7 +238,7 @@ MicroWorld.prototype.makeButtons = function () {
         sprite.buttons = [];
     }
 
-    this.buttons['scripting-area'].forEach(
+    this.buttons['scripts'].forEach(
         function (definition) {
             var button = myself.makeButton(definition);
             if (!contains(sf.toolBar.children, button)) {
@@ -269,7 +274,19 @@ MicroWorld.prototype.createCorralButtonsFrame = function () {
     ide.corralButtonsFrame.setColor(sprite.paletteColor);
     ide.add(ide.corralButtonsFrame);
     ide.corralButtonsFrame.fixLayout = function () {
-        // TODO after lunch
+        var padding = 5,
+            x = ide.corralButtonsFrame.left() + padding;
+            y = ide.corralButtonsFrame.top() + padding;
+        ide.corralButtonsFrame.contents.children.forEach(function (button) {
+            if ((x + button.width()) >
+                (ide.corralButtonsFrame.right() - padding)) {
+                x = ide.corralButtonsFrame.left() + padding;
+                y += button.height() + padding;
+            }
+            button.setLeft(x);
+            button.setTop(y);
+            x += button.width() + padding;
+        });
     };
 };
 

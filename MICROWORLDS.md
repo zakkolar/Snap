@@ -56,7 +56,7 @@ rotation style, and where the *Scripts, Costumes* and *Sounds* tabs live.
 all the sprites in your project, as well as create new ones.
   - `categoryList`: the area on top of the palette, where you can switch
 between block categories.
-  - `makeBlockBUttons`: all *Make a block* buttons in the palette. Note that
+  - `makeBlockButtons`: all *Make a block* buttons in the palette. Note that
 this doesn't hide the *make a block...* option in the scripting area context
 menu.
   - `searchButton`: the magnifying glass icon at the top of the blocks
@@ -112,12 +112,22 @@ of the right column will show you this block's selector.
 
 ### Custom buttons
 
-A button is defined with a `<button>` tag. The tag accepts one single attribute,
-`label` that describes the button's label text. Like this:
+A button is defined with a `<button>` tag. The tag requires two attributes:
+`label`, that describes the button's label text, and `placement` that defines
+where in the IDE will the button be placed. Like this:
 
 ```
-<button label="Help">
+<button label="Help" placement="corral">
 ```
+
+The three valid values for `placement` are:
+
+* *scripts*: The button will be placed at the top right corner of the scripting
+area
+* *palette*: The button will be added to the bottom of the palette, after
+all the blocks but before the "Make a block" button (if visible).
+* *corral*: The button will be added to the area under the stage. This requires
+the corral to be hidden, otherwise there will be no space for buttons in it.
 
 The content of the button tag is an arbitrary snippet of Javascript. The `this`
 pseudovariable points to the sprite that owns the scripting area.
@@ -125,7 +135,7 @@ pseudovariable points to the sprite that owns the scripting area.
 Here's an example of a button that broadcasts a message:
 
 ```
-<button label="Help">
+<button label="Help" placement="scripting-area">
   var ide = this.parentThatIsA(IDE_Morph);
   ide.broadcast("help");
 </button>

@@ -2459,15 +2459,22 @@ MicroWorld.prototype.toXML = function (serializer) {
         this.blockSpecs.join(','),
         this.projectMenu.join(','),
         this.blockContextMenu.join(','),
-        this.buttons.reduce(
-            function (xml, button) {
-                return xml +
-                    '<button label="' + button.label + '" placement="' +
-                    button.placement + '">' + button.action + '</button>';
-            },
-            ''
-        )
+        this.buttonsXML()
     );
 };
 
-
+MicroWorld.prototype.buttonsXML = function () {
+    var xml = '',
+        buttons = this.buttons;
+    Object.keys(buttons).forEach(function (placement) {
+        xml += buttons[placement].reduce(
+            function (xml, button) {
+                return xml +
+                    '<button label="' + button.label + '" placement="' +
+                    placement +'">' + button.action + '</button>';
+            },
+            ''
+        );
+    });
+    return xml;
+};
