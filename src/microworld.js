@@ -315,7 +315,8 @@ MicroWorld.prototype.setupMenu = function (menuSelector, menu) {
         function (itemLabel) {
             var item = menu.items.find(
                 function (each) {
-                    return each[0].toString() === itemLabel;
+                    return each[0].toString() ===
+                        SnapTranslator.translate(itemLabel);
                 }
             );
             if (item) {
