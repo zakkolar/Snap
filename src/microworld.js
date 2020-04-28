@@ -240,8 +240,12 @@ MicroWorld.prototype.makeButtons = function () {
 
     this.buttons['scripts'].forEach(
         function (definition) {
-            var button = myself.makeButton(definition);
-            if (!contains(sf.toolBar.children, button)) {
+            if (!sf.toolBar.children.find(
+                function (child) {
+                    return child.labelString == definition.label;
+                }
+            )) {
+                var button = myself.makeButton(definition);
                 sf.toolBar.add(button);
                 sprite.buttons[definition.label] = button;
             }
