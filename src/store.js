@@ -669,9 +669,18 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode, remixID) {
             model.buttons = model.microworld.require('buttons');
             model.buttons.childrenNamed('button').forEach(
                 function (model) {
+                    var translations = {};
+                    if (model.childNamed('translations')) {
+                        model.childNamed('translations').children.forEach(
+                            function (child) {
+                                translations[child.tag] = child.contents;
+                            }
+                        );
+                    };
                     project.stage.microworld.buttons[
                         model.attributes.placement].push(
                             {
+                                translations: translations,
                                 label: model.attributes.label,
                                 action: model.contents
                             }
@@ -2471,7 +2480,12 @@ MicroWorld.prototype.buttonsXML = function () {
             function (xml, button) {
                 return xml +
                     '<button label="' + button.label + '" placement="' +
-                    placement +'">' + button.action + '</button>';
+                    placement +'"><translations>' +
+                    Object.keys(button.translations).map(function (key) {
+                        return '<' + key + '>' + button.translations[key] +
+                            '</' + key + '>'
+                    }) +
+                    '</translations>' + button.action + '</button>';
             },
             ''
         );
