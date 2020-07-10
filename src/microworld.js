@@ -355,7 +355,9 @@ MicroWorld.prototype.hideCategoryList = function () {
 
     // hide categories
     ide.categories.hide();
-    ide.categoriesHeight = ide.categories.height();
+    if (ide.categories.height() > 0) {
+        ide.categoriesHeight = ide.categories.height();
+    }
     ide.categories.setHeight(0);
 
     // resize palette to take up all vertical space
@@ -432,14 +434,11 @@ MicroWorld.prototype.showPauseButton = function () {
 MicroWorld.prototype.hideSpriteBar = function () {
     // hide tab bar and sprite properties panel
     this.ide.spriteBar.hide();
-    this.ide.spriteBarHeight = this.ide.spriteBar.height();
-    this.ide.spriteBar.setHeight(0);
     this.ide.spriteBar.hide();
     this.ide.spriteBar.tabBar.hide();
 };
 
 MicroWorld.prototype.showSpriteBar = function () {
-    this.ide.spriteBar.setHeight(this.ide.spriteBarHeight);
     this.ide.spriteBar.show();
     this.ide.spriteBar.tabBar.show();
 };
@@ -452,11 +451,13 @@ MicroWorld.prototype.hideSpriteCorral = function () {
     this.ide.corralBar.hide();
 
     // prevent switching to a sprite on stage by double clicking on it
-    SpriteMorph.prototype.oldMouseDoubleClick =
-        SpriteMorph.prototype.mouseDoubleClick;
-    SpriteMorph.prototype.mouseDoubleClick = function () {
-        if (!myself.isActive) {
-            this.oldMouseDoubleClick();
+    if (!SpriteMorph.prototype.oldMouseDoubleClick) {
+        SpriteMorph.prototype.oldMouseDoubleClick =
+            SpriteMorph.prototype.mouseDoubleClick;
+        SpriteMorph.prototype.mouseDoubleClick = function () {
+            if (!myself.isActive) {
+                this.oldMouseDoubleClick();
+            }
         }
     }
 };
