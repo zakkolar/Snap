@@ -211,16 +211,13 @@ MicroWorld.prototype.setBlocksScale = function (zoom) {
             each.scripts.forAllChildren(function (child) {
                 if (child.setScale) {
                     child.setScale(zoom);
-                    child.drawNew();
                     child.changed();
                     child.fixLayout();
                 } else if (child.fontSize) {
                     child.fontSize = 10 * zoom;
-                    child.drawNew();
                     child.changed();
                 } else if (child instanceof SymbolMorph) {
                     child.size = zoom * 12;
-                    child.drawNew();
                     child.changed();
                 }
             });
@@ -298,7 +295,8 @@ MicroWorld.prototype.makeButton = function (definition) {
     var sprite = this.ide.currentSprite,
         currentLang = localStorage['-snap-setting-language'];
         label =
-            (contains(Object.keys(definition.translations), currentLang)) ?
+            !isNil(definition.translations) &&
+                (contains(Object.keys(definition.translations), currentLang)) ?
             definition.translations[currentLang] :
             definition.label;
     return new PushButtonMorph(
