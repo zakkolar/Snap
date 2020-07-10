@@ -129,13 +129,27 @@ all the blocks but before the "Make a block" button (if visible).
 * *corral*: The button will be added to the area under the stage. This requires
 the corral to be hidden, otherwise there will be no space for buttons in it.
 
+Label translations are defined in a `<translations>` tag inside the `<button>` tag.
+For each translation there should be a language code tag that contains the
+translated string. For example:
+
+```
+<translations><ca>Ajuda</ca><es>Ayuda</es><it>Aiuto</it><de>Hilfe</de></translations>
+```
+
 The content of the button tag is an arbitrary snippet of Javascript. The `this`
 pseudovariable points to the sprite that owns the scripting area.
 
-Here's an example of a button that broadcasts a message:
+Here's a full example of a button, with translations to four different languages, that broadcasts a message:
 
 ```
 <button label="Help" placement="scripting-area">
+  <translations>
+    <ca>Ajuda</ca>
+    <es>Ayuda</es>
+    <it>Aiuto</it>
+    <de>Hilfe</de>
+  </translations>
   var ide = this.parentThatIsA(IDE_Morph);
   ide.broadcast("help");
 </button>
@@ -179,6 +193,12 @@ attribute, as described in the *Attributes* section.
     <blockContextMenu>help...,delete block definition...,edit...,0,duplicate,[object HTMLCanvasElement]</blockContextMenu>
     <buttons>
       <button label="Help">
+        <translations>
+          <ca>Ajuda</ca>
+          <es>Ayuda</es>
+          <it>Aiuto</it>
+          <de>Hilfe</de>
+        </translations>
         this.bubble("Use the blocks in the palette to draw a square");
       </button>
     </buttons>
