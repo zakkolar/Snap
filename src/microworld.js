@@ -61,7 +61,7 @@ MicroWorld.prototype.enter = function () {
     this.makeButtons();
 
     this.hideAllMorphs();
-    this.refreshIDE();
+    this.ide.fixLayout();
 };
 
 MicroWorld.prototype.escape = function () {
@@ -86,7 +86,7 @@ MicroWorld.prototype.escape = function () {
         }
     );
 
-    this.refreshIDE();
+    ide.fixLayout();
 
     ide.savingPreferences = true;
 };
@@ -158,7 +158,7 @@ MicroWorld.prototype.createPalette = function () {
             ide.currentCategory = 'microworld';
             ide.refreshPalette(true);
 
-            myself.refreshIDE();
+            ide.fixLayout();
         }
     };
 
@@ -190,16 +190,6 @@ MicroWorld.prototype.loadCustomBlocks = function () {
     });
 
     sprite.refreshMicroWorldPalette();
-};
-
-MicroWorld.prototype.refreshIDE = function () {
-    // This is a hack. And it's not very pretty.
-    // (And may not be needed in Snap!6, let's keep it commented for now)
-    /*
-    var ratio = this.ide.stageRatio;
-    this.ide.toggleStageSize(true, ratio === 1 ? 0.5 : 1);
-    this.ide.toggleStageSize(true, ratio);
-    */
 };
 
 MicroWorld.prototype.setBlocksScale = function (zoom) {
