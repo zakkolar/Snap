@@ -1908,12 +1908,17 @@ IDE_Morph.prototype.fixLayout = function (situation) {
         this.spriteBar.fixLayout();
 
         // spriteEditor
-        if (this.spriteEditor.isVisible) {
+        if (this.spriteEditor.isVisible && this.spriteBar.isVisible) {
             this.spriteEditor.setPosition(this.spriteBar.bottomLeft());
             this.spriteEditor.setExtent(new Point(
                 this.spriteBar.width(),
                 this.bottom() - this.spriteEditor.top()
             ));
+        } else if (this.spriteEditor.isVisible) {
+            this.spriteEditor.setWidth(
+               this.width() - this.palette.width() - this.stage.width());
+            this.spriteEditor.setHeight(this.palette.height());
+            this.spriteEditor.setPosition(this.palette.topRight());
         }
 
         // corralBar

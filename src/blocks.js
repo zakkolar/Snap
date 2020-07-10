@@ -2598,7 +2598,7 @@ BlockMorph.prototype.userMenu = function () {
         top = this.topBlock(),
         vNames = proc && proc.context && proc.context.outerContext ?
                 proc.context.outerContext.variables.names() : [],
-        microworld = this.parentThatIsA(IDE_Morph).stage.microworld,
+        microworld = world.children[0].stage.microworld,
         alternatives,
         field,
         rcvr;

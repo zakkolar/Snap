@@ -194,9 +194,12 @@ MicroWorld.prototype.loadCustomBlocks = function () {
 
 MicroWorld.prototype.refreshIDE = function () {
     // This is a hack. And it's not very pretty.
+    // (And may not be needed in Snap!6, let's keep it commented for now)
+    /*
     var ratio = this.ide.stageRatio;
     this.ide.toggleStageSize(true, ratio === 1 ? 0.5 : 1);
     this.ide.toggleStageSize(true, ratio);
+    */
 };
 
 MicroWorld.prototype.setBlocksScale = function (zoom) {
@@ -340,7 +343,8 @@ MicroWorld.prototype.hideAllMorphs = function () {
 
 MicroWorld.prototype.hideMorph = function (morphSelector) {
     // given (i.e.) 'categoryList', calls this.hideCategoryList()
-    var selector = 'hide' + morphSelector[0].toUpperCase() + morphSelector.slice(1);
+    var selector =
+        'hide' + morphSelector[0].toUpperCase() + morphSelector.slice(1);
     if (this[selector]) {
         this[selector]();
     }
@@ -348,7 +352,8 @@ MicroWorld.prototype.hideMorph = function (morphSelector) {
 
 MicroWorld.prototype.showMorph = function (morphSelector) {
     // given (i.e.) 'categoryList', calls this.showCategoryList()
-    var selector = 'show' + morphSelector[0].toUpperCase() + morphSelector.slice(1);
+    var selector =
+        'show' + morphSelector[0].toUpperCase() + morphSelector.slice(1);
     if (this[selector]) {
         this[selector]();
     }
