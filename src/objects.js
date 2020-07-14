@@ -2752,17 +2752,17 @@ SpriteMorph.prototype.makeBlock = function () {
                 if (microworld && microworld.isActive) {
                     definition.codeHeader = 'microworld'; // watermark it
                     stage.globalBlocks.push(definition);
-                    myself.blocksCache['microworld'].push(
+                    this.blocksCache['microworld'].push(
                         definition.templateInstance()
                     );
-                    myself.refreshMicroWorldPalette();
-                    myself.hideSearchButton();
-                    editor = new BlockEditorMorph(definition, sprite);
+                    this.refreshMicroWorldPalette();
+                    stage.microworld.hideSearchButton();
+                    editor = new BlockEditorMorph(definition, this);
                     editor.popUp();
                 } else {
                     ide.flushPaletteCache();
                     ide.refreshPalette();
-                    new BlockEditorMorph(definition, myself).popUp();
+                    new BlockEditorMorph(definition, this).popUp();
                 }
             }
         },
@@ -2770,7 +2770,9 @@ SpriteMorph.prototype.makeBlock = function () {
     );
     if (category !== 'variables') {
         dlg.category = category;
-        dlg.categories.children.forEach(each => each.refresh());
+        if (dlg.categories) {
+            dlg.categories.children.forEach(each => each.refresh());
+        }
         dlg.types.children.forEach(each => {
             each.setColor(clr);
             each.refresh();
