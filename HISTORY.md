@@ -2,6 +2,11 @@
 
 ## in development:
 
+### 2020-07-13
+* paint, symbols: new iconic buttons for grow, shrink and flip actions, thanks, Jadga!
+* sketch: tweaked layout to match the paint editor's
+* fixed shift-key constrain mode and "clear" in paint and vector editors, thanks, Joan!
+
 ### 2020-07-10
 * morphic: prevent the browser from hijacking cmd-d/f/i/p/s key events
 * added migration guide for Morphic2/Snap!6

@@ -85,7 +85,7 @@ HTMLCanvasElement, fontHeight, SymbolMorph, localize, SpeechBubbleMorph,
 ArrowMorph, MenuMorph, isString, isNil, SliderMorph, MorphicPreferences,
 ScrollFrameMorph, MenuItemMorph, Note*/
 
-modules.widgets = '2020-July-01';
+modules.widgets = '2020-July-13';
 
 var PushButtonMorph;
 var ToggleButtonMorph;
@@ -1583,7 +1583,6 @@ DialogBoxMorph.prototype.askYesNo = function (
     this.addBody(txt);
     this.addButton('ok', 'Yes');
     this.addButton('cancel', 'No');
-    this.fixLayout();
     this.fixLayout();
     this.popUp(world);
 };
