@@ -3145,8 +3145,8 @@ InputSlotDialogMorph.prototype.createTypeButtons = function () {
                 } else {
                     arrow.direction = 'right';
                 }
-                arrow.drawNew();
-                arrow.changed();
+                arrow.fixLayout();
+                arrow.rerender();
             }
         };
 
