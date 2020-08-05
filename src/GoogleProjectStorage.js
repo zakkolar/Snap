@@ -739,6 +739,7 @@ ProjectDialogMorph.prototype.saveProject = function () {
                 this.ide.setProjectName(name);
                 this.saveCloudProject();
             }
+        // @new
         } else if (this.source === 'google') {
 
 
