@@ -286,7 +286,7 @@ MicroWorld.prototype.createCorralButtonsFrame = function () {
 
 MicroWorld.prototype.makeButton = function (definition) {
     var sprite = this.ide.currentSprite,
-        currentLang = localStorage['-snap-setting-language'];
+        currentLang = SnapTranslator.language,
         label =
             !isNil(definition.translations) &&
                 (contains(Object.keys(definition.translations), currentLang)) ?
