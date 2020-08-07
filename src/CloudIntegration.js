@@ -1,18 +1,64 @@
 /*
-create src/GoogleCredentials.js with the following information:
-var GOOGLE_CLIENT_ID = "[your client ID]",
-    GOOGLE_API_KEY = "[your API key]";
+create src/CloudCredentials.js with the following contents:
+var CLOUD_CREDENTIALS = {
+    google: {
+        GOOGLE_CLIENT_ID: '[your client ID]]',
+        GOOGLE_API_KEY: '[your API key]'
+    }
+};
  */
 
-
-var GoogleConnection = function(clientId, apiKey){
-    this.init(clientId, apiKey);
+var CloudIntegration = function(label){
+    this.init(label);
 }
 
-GoogleConnection.prototype.init = function(clientId, apiKey){
-    this.clientId = clientId;
-    this.apiKey = apiKey;
+CloudIntegration.prototype.init = function(label){
+    this.label = label;
     this.signedIn = false;
+}
+
+CloudIntegration.prototype.getSnapFiles = function(){
+    return new Promise((resolve, reject)=>{
+        reject('Implement getSnapFiles!');
+    })
+}
+
+CloudIntegration.prototype.downloadFile = function(id){
+    return new Promise((resolve, reject)=>{
+        reject('Implement downloadFile!')
+    })
+}
+
+CloudIntegration.prototype.uploadSnapFile = function(name, body){
+    return new Promise((resolve, reject)=>{
+        reject('Implement uploadSnapFile!');
+    });
+}
+
+CloudIntegration.prototype.showSignIn = function(ide){
+    return new Promise((resolve, reject)=>{
+        reject('Implement showSignIn!');
+    })
+}
+
+//////////////////
+
+var GoogleConnection;
+
+GoogleConnection.prototype = new CloudIntegration();
+GoogleConnection.prototype.constructor = GoogleConnection;
+GoogleConnection.uber = CloudIntegration.prototype;
+
+function GoogleConnection(options){
+    this.init(options, 'Google Drive');
+}
+
+GoogleConnection.prototype.init = function(options, label){
+    // initialize inherited properties:
+    GoogleConnection.uber.init.call(this, label);
+
+    this.clientId = options.clientId;
+    this.apiKey = options.apiKey;
     this.file = null;
 
     var apiUrl = 'https://apis.google.com/js/api.js';
@@ -59,6 +105,10 @@ GoogleConnection.prototype.initClient = function(){
     });
 }
 
+GoogleConnection.prototype.showSignIn = function(ide){
+    return ide.showGoogleSignIn();
+}
+
 GoogleConnection.prototype.getSnapFolder = function(){
     return new Promise((resolve, reject)=>{
         gapi.client.drive.files.list({
@@ -81,7 +131,6 @@ GoogleConnection.prototype.getSnapFolder = function(){
 }
 
 GoogleConnection.prototype.getSnapFiles = function(){
-
     return new Promise((resolve, reject)=>{
         this.getSnapFolder().then((folderId)=>{
             var retrievePageOfFiles = function (params, result){
@@ -113,12 +162,7 @@ GoogleConnection.prototype.getSnapFiles = function(){
                 'fields': "nextPageToken, files(id, name, modifiedTime)",
             }, []);
         }, (e)=>reject(e));
-
-
     })
-
-
-
 }
 
 
@@ -212,12 +256,8 @@ IDE_Morph.prototype.showGoogleSignIn = function(){
     var myself = this;
 
     return new Promise((resolve, reject)=>{
-
-
-
         var textString = "Click below to authorize a connection to Google Drive.",
             title = 'Connect to Google Drive';
-
 
         var world = this.world();
 
@@ -235,31 +275,25 @@ IDE_Morph.prototype.showGoogleSignIn = function(){
             MorphicPreferences.isFlat ? null : new Point(1, 1),
             WHITE
         );
-
         if (!dialog.key) {
             dialog.key = 'inform' + title + textString;
         }
-
         txt.enableLinks = true; // let the user click on URLs to open in new tab
         dialog.labelString = title;
         dialog.createLabel();
-
         if (textString) {
             dialog.addBody(txt);
         }
-
         dialog.addButton(function(){
             gapi.auth2.getAuthInstance().signIn()
                 .then(function(){
                     dialog.destroy();
-                    myself.googleConnection.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                    myself.cloudConnections['google'].updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
                     resolve();
                 }, function(e){
                     reject(e);
                 });
         }, 'Sign in with Google');
-
-
 
         dialog.addButton('cancel', 'Cancel');
         dialog.fixLayout();
@@ -269,7 +303,9 @@ IDE_Morph.prototype.showGoogleSignIn = function(){
 
 }
 
-IDE_Morph.prototype.saveProjectToGoogleDrive = function (name) {
+IDE_Morph.prototype.saveProjectToCloudConnection = function (name) {
+
+    var cloudConnection = this.cloudConnections[this.source.split(':')[1]];
 
     return new Promise((resolve, reject)=>{
         var projectBody;
@@ -278,13 +314,13 @@ IDE_Morph.prototype.saveProjectToGoogleDrive = function (name) {
             this.setProjectName(name);
         }
 
-        this.showMessage('Saving project\nto Google Drive...');
+        this.showMessage('Saving project\nto '+cloudConnection.label+' ...');
         try{
             projectBody = this.serializer.serialize(this.stage);
             this.showMessage(
                 'Uploading...'
             );
-            this.googleConnection.uploadSnapFile(this.projectName, projectBody).then((id)=>{
+            cloudConnection.uploadSnapFile(this.projectName, projectBody).then((id)=>{
                 this.showMessage('saved.', 2);
                 resolve(id);
             }, (e)=>{
@@ -305,9 +341,8 @@ IDE_Morph.prototype.saveProjectToGoogleDrive = function (name) {
 
 };
 
-ProjectDialogMorph.prototype.saveGoogleDriveProject = function () {
-    this.ide.source = 'google';
-    this.ide.saveProjectToGoogleDrive().finally(()=>{
+ProjectDialogMorph.prototype.saveCloudIntegrationProject = function () {
+    this.ide.saveProjectToCloudConnection().finally(()=>{
         this.destroy();
     });
 
@@ -317,7 +352,12 @@ ProjectDialogMorph.prototype.saveGoogleDriveProject = function () {
 var originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(){
     originalInit.call(this);
-    this.googleConnection = new GoogleConnection(GOOGLE_CLIENT_ID,GOOGLE_API_KEY);
+    this.cloudConnections = {
+       google: new GoogleConnection({
+            clientId: CLOUD_CREDENTIALS.google.GOOGLE_CLIENT_ID,
+            apiKey: CLOUD_CREDENTIALS.google.GOOGLE_API_KEY
+        })
+    }
 }
 
 // @override
@@ -349,7 +389,12 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.addSourceButton('cloud', localize('Cloud'), 'cloud');
 
     // @new
-    this.addSourceButton('google', localize('Google Drive'), 'cloud');
+    for(let connection in this.ide.cloudConnections){
+        if(this.ide.cloudConnections.hasOwnProperty(connection)){
+            this.addSourceButton('cloud-integration:'+connection, localize(this.ide.cloudConnections[connection].label), 'cloud');
+        }
+    }
+
 
     if (this.task === 'open') {
         this.buildFilterField();
@@ -478,13 +523,17 @@ ProjectDialogMorph.prototype.buildContents = function () {
 ProjectDialogMorph.prototype.setSource = function (source) {
     var msg;
 
+
     this.source = source;
+
+
     this.srcBar.children.forEach(button =>
         button.refresh()
     );
 
-    switch (this.source) {
-        case 'cloud':
+    // @change switch to if
+
+        if(this.source === 'cloud') {
             msg = this.ide.showMessage('Updating\nproject list...');
             this.projectList = [];
             this.ide.cloud.getProjectList(
@@ -502,36 +551,33 @@ ProjectDialogMorph.prototype.setSource = function (source) {
             );
 
             return;
+        }
         // @new
-        case 'google':
-            if(!this.ide.googleConnection.signedIn){
-                this.ide.showGoogleSignIn().then(()=>{
+        else if (this.source && this.source.indexOf('cloud-integration') > -1 ) {
+            var cloudConnection = this.ide.cloudConnections[this.source.split(':')[1]];
+            if (!cloudConnection.signedIn) {
+                cloudConnection.showSignIn(this.ide).then(() => {
                     this.setSource(source);
                 });
-            }
-            else{
-                msg = this.ide.showMessage('Loading project list\nfrom Google Drive...');
-                this.ide.googleConnection.getSnapFiles().then(
-                    (files)=>{
-                        this.projectList = files.sort((a,b)=>{
+            } else {
+                msg = this.ide.showMessage('Loading project list\nfrom ' + cloudConnection.label + '...');
+                cloudConnection.getSnapFiles().then(
+                    (files) => {
+                        this.projectList = files.sort((a, b) => {
                             return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1;
                         });
-                    }).finally(()=>{
+                    }).finally(() => {
                     this.renderList();
                     msg.destroy();
                 });
                 return;
             }
-
-            break;
-        case 'examples':
+        } else if(this.source === 'examples'){
             this.projectList = this.getExamplesProjectList();
-            break;
-        case 'local':
+        } else if(this.source === 'local') {
             // deprecated, only for reading
             this.projectList = this.getLocalProjectList();
-            break;
-        case 'disk':
+        } else if (this.source === 'disk'){
             if (this.task === 'save') {
                 this.projectList = [];
             } else {
@@ -539,8 +585,8 @@ ProjectDialogMorph.prototype.setSource = function (source) {
                 this.ide.importLocalFile();
                 return;
             }
-            break;
-    }
+        }
+
 
     // @refactored
     this.renderList();
@@ -598,12 +644,17 @@ ProjectDialogMorph.prototype.renderList = function(){
         };
     }
     // @new
-    else if (this.source === 'google') {
+    else if (this.source && this.source.indexOf('cloud-integration')>-1) {
+        var cloudConnection = this.ide.cloudConnections[this.source.split(':')[1]];
         this.listField.action = (item) => {
             var src, xml;
             if (item === undefined) {return; }
 
-            this.ide.googleConnection.downloadFile(item.id).then((src)=>{
+            if (this.nameField) {
+                this.nameField.setContents(item.name || '');
+            }
+
+            cloudConnection.downloadFile(item.id).then((src)=>{
                 xml = this.ide.serializer.parse(src);
                 this.notesText.text = xml.childNamed('notes').contents || '';
                 this.notesText.rerender();
@@ -684,27 +735,23 @@ ProjectDialogMorph.prototype.openProject = function () {
         this.ide.openProjectString(src);
         this.destroy();
         // @new
-    } else if (this.source === 'google'){
-        this.ide.showMessage('Loading project\nfrom Google Drive...');
-        this.ide.googleConnection.downloadFile(proj.id).then((src)=>{
-            // this.ide.openProjectString(src);
-            this.ide.googleConnection.file = proj;
-            var msg;
+    } else if (this.source.indexOf('cloud-integration')>-1){
+        this.ide.source = this.source;
+        var cloudConnection = this.ide.cloudConnections[this.source.split(':')[1]];
+        var msg = this.ide.showMessage('Loading project\nfrom '+cloudConnection.label);
+        cloudConnection.downloadFile(proj.id).then((src)=>{
+            cloudConnection.file = proj;
             this.ide.nextSteps([
                 () => msg = this.ide.showMessage('Opening project...'),
                 () => {
                     this.ide.rawOpenProjectString(src);
-                    // msg.destroy();
                 },
                 () => this.ide.setProjectName(proj.name)
             ]);
-            // this.nextSteps([
-            //     ()=>{this.ide.setProjectName(proj.name)}
-            //     ]);
         }, (e)=>{
             console.error(e);
             msg.destroy();
-            msg = this.ide.showMessage('Error retrieving project\nfrom Google Drive');
+            msg = this.ide.showMessage('Error retrieving project\nfrom '+cloudConnection.label);
         });
     } else { // 'local'
         this.ide.source = null;
@@ -717,6 +764,7 @@ ProjectDialogMorph.prototype.openProject = function () {
 ProjectDialogMorph.prototype.saveProject = function () {
     var name = this.nameField.contents().text.text,
         notes = this.notesText.text;
+
 
     this.ide.projectNotes = notes || this.ide.projectNotes;
     if (name) {
@@ -740,9 +788,8 @@ ProjectDialogMorph.prototype.saveProject = function () {
                 this.saveCloudProject();
             }
         // @new
-        } else if (this.source === 'google') {
-
-
+        } else if (this.source && this.source.indexOf('cloud-integration')>-1) {
+            this.ide.source = this.source;
             if(detect(
                 this.projectList,
                 item => item.name === name
@@ -754,12 +801,12 @@ ProjectDialogMorph.prototype.saveProject = function () {
                     'Replace Project',
                     () => {
                         this.ide.setProjectName(name);
-                        this.saveGoogleDriveProject();
+                        this.saveCloudIntegrationProject();
                     }
                 );
             } else {
                 this.ide.setProjectName(name);
-                this.saveGoogleDriveProject();
+                this.saveCloudIntegrationProject();
             }
 
         } else if (this.source === 'disk') {
@@ -799,8 +846,8 @@ IDE_Morph.prototype.save = function () {
         } else if (this.source === 'cloud') {
             this.saveProjectToCloud(this.projectName);
             // @new
-        } else if (this.source === 'google') {
-            this.saveProjectToGoogleDrive(this.projectName);
+        } else if (this.source.indexOf('cloud-integration')>-1) {
+            this.saveProjectToCloudConnection(this.projectName);
         } else {
             this.saveProjectsBrowser();
         }
