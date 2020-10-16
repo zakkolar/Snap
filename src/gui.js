@@ -1632,7 +1632,7 @@ IDE_Morph.prototype.createSpriteEditor = function () {
         );
         this.spriteEditor.color = this.groupColor;
         this.spriteEditor.padding = 10;
-        this.spriteEditor.growth = new Point(50, 250);
+        this.spriteEditor.growth = 50;
         this.spriteEditor.isDraggable = false;
         this.spriteEditor.acceptsDrops = false;
         this.spriteEditor.contents.acceptsDrops = true;
