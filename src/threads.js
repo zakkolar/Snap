@@ -61,7 +61,7 @@ StageMorph, SpriteMorph, StagePrompterMorph, Note, modules, isString, copy, Map,
 isNil, WatcherMorph, List, ListWatcherMorph, alert, console, TableMorph, BLACK,
 TableFrameMorph, ColorSlotMorph, isSnapObject, newCanvas, Symbol, SVG_Costume*/
 
-modules.threads = '2020-July-09';
+modules.threads = '2020-October-08';
 
 var ThreadManager;
 var Process;
@@ -375,7 +375,7 @@ ThreadManager.prototype.removeTerminatedProcesses = function () {
                 }
             }
             if (proc.topBlock instanceof ReporterBlockMorph ||
-                    proc.isShowingResult) {
+                    proc.isShowingResult || proc.exportResult) {
                 result = proc.homeContext.inputs[0];
                 if (proc.onComplete instanceof Function) {
                     proc.onComplete(result);
@@ -2136,6 +2136,52 @@ Process.prototype.reportIfElse = function (block) {
         }
     }
 };
+
+/*
+// Process - hyperized reporter-if, experimental, commented out for now
+
+Process.prototype.reportIfElse = function (block) {
+    var inputs = this.context.inputs;
+
+    if (inputs.length < 1) {
+        this.evaluateNextInput(block);
+    } else if (inputs.length > 1) {
+        if (this.flashContext()) {return; }
+        if (inputs[0] instanceof List && this.enableHyperOps) {
+            if (inputs.length < 3) {
+                this.evaluateNextInput(block);
+            } else {
+                this.returnValueToParentContext(
+                    this.hyperIf.apply(this, inputs)
+                );
+                this.popContext();
+            }
+        } else {
+            this.returnValueToParentContext(inputs.pop());
+            this.popContext();
+        }
+    } else {
+        if (inputs[0] instanceof List && this.enableHyperOps) {
+            this.evaluateNextInput(block);
+        } else {
+            // this.assertType(inputs[0], ['Boolean']);
+            if (inputs[0]) {
+                this.evaluateNextInput(block);
+            } else {
+                inputs.push(null);
+                this.evaluateNextInput(block);
+            }
+        }
+    }
+};
+
+Process.prototype.hyperIf = function (test, trueValue, falseValue) {
+    if (test instanceof List) {
+        return test.map(each => this.hyperIf(each, trueValue, falseValue));
+    }
+    return test ? trueValue : falseValue;
+};
+*/
 
 // Process process related primitives
 
@@ -4638,6 +4684,12 @@ Process.prototype.spritesAtPoint = function (point, stage) {
 };
 
 Process.prototype.reportRelationTo = function (relation, name) {
+    if (this.enableHyperOps) {
+        if (name instanceof List && !this.isCoordinate(name)) {
+            return name.map(each => this.reportRelationTo(relation, each));
+        }
+    }
+
 	var rel = this.inputOption(relation);
  	if (rel === 'distance') {
   		return this.reportDistanceTo(name);
@@ -4646,6 +4698,13 @@ Process.prototype.reportRelationTo = function (relation, name) {
     	return this.reportDirectionTo(name);
     }
     return 0;
+};
+
+Process.prototype.isCoordinate = function (data) {
+    return data instanceof List &&
+        (data.length() === 2) &&
+            this.reportTypeOf(data.at(1)) === 'number' &&
+                this.reportTypeOf(data.at(2)) === 'number';
 };
 
 Process.prototype.reportDistanceTo = function (name) {
@@ -4925,6 +4984,7 @@ Process.prototype.doSet = function (attribute, value) {
     }
     switch (name) {
     case 'anchor':
+    case 'my anchor':
         this.assertType(rcvr, 'sprite');
         if (value instanceof SpriteMorph) {
             // avoid circularity here, because the GUI already checks for
@@ -4940,11 +5000,13 @@ Process.prototype.doSet = function (attribute, value) {
         }
         break;
     case 'parent':
+    case 'my parent':
         this.assertType(rcvr, 'sprite');
         value = value instanceof SpriteMorph ? value : null;
         rcvr.setExemplar(value, true); // throw an error in case of circularity
         break;
     case 'temporary?':
+    case 'my temporary?':
         this.assertType(rcvr, 'sprite');
         this.assertType(value, 'Boolean');
         if (value) {
@@ -4954,6 +5016,7 @@ Process.prototype.doSet = function (attribute, value) {
         }
         break;
     case 'name':
+    case 'my name':
         this.assertType(rcvr, ['sprite', 'stage']);
         this.assertType(value, ['text', 'number']);
         ide = rcvr.parentThatIsA(IDE_Morph);
@@ -4967,12 +5030,14 @@ Process.prototype.doSet = function (attribute, value) {
         }
         break;
     case 'dangling?':
+    case 'my dangling?':
         this.assertType(rcvr, 'sprite');
         this.assertType(value, 'Boolean');
         rcvr.rotatesWithAnchor = !value;
         rcvr.version = Date.now();
         break;
     case 'draggable?':
+    case 'my draggable?':
         this.assertType(rcvr, 'sprite');
         this.assertType(value, 'Boolean');
         rcvr.isDraggable = value;
@@ -4988,6 +5053,7 @@ Process.prototype.doSet = function (attribute, value) {
         rcvr.version = Date.now();
         break;
     case 'rotation style':
+    case 'my rotation style':
         this.assertType(rcvr, 'sprite');
         this.assertType(+value, 'number');
         if (!contains([0, 1, 2], +value)) {
@@ -5009,11 +5075,13 @@ Process.prototype.doSet = function (attribute, value) {
         rcvr.version = Date.now();
         break;
     case 'rotation x':
+    case 'my rotation x':
         this.assertType(rcvr, 'sprite');
         this.assertType(value, 'number');
         rcvr.setRotationX(value);
         break;
     case 'rotation y':
+    case 'my rotation y':
         this.assertType(rcvr, 'sprite');
         this.assertType(value, 'number');
         rcvr.setRotationY(value);
@@ -5031,17 +5099,20 @@ Process.prototype.doSet = function (attribute, value) {
 Process.prototype.reportContextFor = function (context, otherObj) {
     // Private - return a copy of the context
     // and bind it to another receiver
-    var result = copy(context);
+    var result = copy(context),
+        receiverVars,
+        rootVars;
+
     result.receiver = otherObj;
     if (result.outerContext) {
         result.outerContext = copy(result.outerContext);
         result.outerContext.variables = copy(result.outerContext.variables);
         result.outerContext.receiver = otherObj;
         if (result.outerContext.variables.parentFrame) {
-            result.outerContext.variables.parentFrame =
-                copy(result.outerContext.variables.parentFrame);
-            result.outerContext.variables.parentFrame.parentFrame =
-                otherObj.variables;
+            rootVars = result.outerContext.variables.parentFrame;
+            receiverVars = copy(otherObj.variables);
+            receiverVars.parentFrame = rootVars;
+            result.outerContext.variables.parentFrame = receiverVars;
         } else {
             result.outerContext.variables.parentFrame = otherObj.variables;
         }
@@ -5498,9 +5569,10 @@ Process.prototype.reportNewCostume = function (pixels, width, height, name) {
     dta = ctx.createImageData(width, height);
     for (i = 0; i < src.length; i += 1) {
         px = src[i].asArray();
-        for (k = 0; k < 4; k += 1) {
+        for (k = 0; k < 3; k += 1) {
             dta.data[(i * 4) + k] = px[k];
         }
+        dta.data[i * 4 + 3] = (px[3] === undefined ? 255 : px[3]);
     }
     ctx.putImageData(dta, 0, 0);
     return new Costume(
@@ -6114,15 +6186,21 @@ Context.prototype.image = function () {
             }
         }
         ring.embed(block, this.inputs);
-        return ring.fullImage();
+        return ring.doWithAlpha(
+            1,
+            () => {
+                ring.clearAlpha();
+                return ring.fullImage();
+            }
+        );
     }
     if (this.expression instanceof Array) {
         block = this.expression[this.pc].fullCopy();
         if (block instanceof RingMorph && !block.contents()) { // empty ring
-            return block.fullImage();
+            return block.doWithAlpha(1, () => block.fullImage());
         }
         ring.embed(block, this.isContinuation ? [] : this.inputs);
-        return ring.fullImage();
+        return ring.doWithAlpha(1, () => ring.fullImage());
     }
 
     // otherwise show an empty ring
@@ -6135,7 +6213,7 @@ Context.prototype.image = function () {
             ring.parts()[1].addInput(inp)
         );
     }
-    return ring.fullImage();
+    return ring.doWithAlpha(1, () => ring.fullImage());
 };
 
 // Context continuations:

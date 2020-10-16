@@ -69,22 +69,22 @@
 // Global stuff ////////////////////////////////////////////////////////
 
 /*global PaintEditorMorph, ListWatcherMorph, PushButtonMorph, ToggleMorph, ZERO,
-DialogBoxMorph, InputFieldMorph, SpriteIconMorph, BlockMorph, SymbolMorph,
+DialogBoxMorph, InputFieldMorph, SpriteIconMorph, BlockMorph, SymbolMorph, nop,
 ThreadManager, VariableFrame, detect, BlockMorph, BoxMorph, Color, Animation,
 CommandBlockMorph, FrameMorph, HatBlockMorph, MenuMorph, Morph, MultiArgMorph,
-Point, ReporterBlockMorph, ScriptsMorph, StringMorph, SyntaxElementMorph,  nop,
+ReporterBlockMorph, ScriptsMorph, StringMorph, SyntaxElementMorph, XML_Element,
 TextMorph, contains, degrees, detect, newCanvas, radians, Array, CursorMorph,
 Date, FrameMorph, Math, MenuMorph, Morph, invoke, MorphicPreferences, WHITE,
-Object, PenMorph, Point, Rectangle, ScrollFrameMorph, SliderMorph, String,
-StringMorph, TextMorph, contains, copy, degrees, detect, document, isNaN,
+Object, PenMorph, Point, Rectangle, ScrollFrameMorph, SliderMorph, VideoMotion,
+StringMorph, TextMorph, contains, copy, degrees, detect, document, isNaN, Point,
 isString, newCanvas, nop, parseFloat, radians, window, modules, IDE_Morph,
-VariableDialogMorph, HTMLCanvasElement, Context, List, RingMorph, VideoMotion,
-SpeechBubbleMorph, InputSlotMorph, isNil, FileReader, TableDialogMorph,
+VariableDialogMorph, HTMLCanvasElement, Context, List, RingMorph, HandleMorph,
+SpeechBubbleMorph, InputSlotMorph, isNil, FileReader, TableDialogMorph, String,
 BlockEditorMorph, BlockDialogMorph, PrototypeHatBlockMorph,  BooleanSlotMorph,
 localize, TableMorph, TableFrameMorph, normalizeCanvas, VectorPaintEditorMorph,
-HandleMorph, AlignmentMorph, Process, XML_Element, WorldMap, copyCanvas*/
+AlignmentMorph, Process, WorldMap, copyCanvas, useBlurredShadows*/
 
-modules.objects = '2020-July-13';
+modules.objects = '2020-October-09';
 
 var SpriteMorph;
 var StageMorph;
@@ -1328,7 +1328,6 @@ SpriteMorph.prototype.initBlocks = function () {
         },
 
         reportConcatenatedLists: { // only in dev mode - experimental
-            dev: true,
             type: 'reporter',
             category: 'lists',
             spec: 'append %lists'
@@ -3578,13 +3577,14 @@ SpriteMorph.prototype.doWearPreviousCostume = function () {
 };
 
 SpriteMorph.prototype.doSwitchToCostume = function (id, noShadow) {
-    var w, h;
+    var w = 0, h = 0;
     if (id instanceof List) { // try to turn a list of pixels into a costume
         if (this.costume) {
             // recycle dimensions of current costume
             w = this.costume.width();
             h = this.costume.height();
-        } else {
+        }
+        if (w * h !== id.length()) {
             // assume stage's dimensions
             w = StageMorph.prototype.dimensions.x;
             h = StageMorph.prototype.dimensions.y;
@@ -5766,23 +5766,8 @@ SpriteMorph.prototype.yBottom = function () {
 // SpriteMorph message broadcasting
 
 SpriteMorph.prototype.allMessageNames = function () {
-    var msgs = [],
-        all = this.scripts.children.slice();
-    this.customBlocks.forEach(def => {
-        if (def.body) {
-            all.push(def.body.expression);
-        }
-        def.scripts.forEach(scr => all.push(scr));
-    });
-    if (this.globalBlocks) {
-        this.globalBlocks.forEach(def => {
-            if (def.body) {
-                all.push(def.body.expression);
-            }
-            def.scripts.forEach(scr => all.push(scr));
-        });
-    }
-    all.forEach(script => {
+    var msgs = [];
+    this.allScripts().forEach(script => {
         script.allChildren().forEach(morph => {
             var txt;
             if (morph instanceof InputSlotMorph && morph.choices && contains(
@@ -5801,8 +5786,14 @@ SpriteMorph.prototype.allMessageNames = function () {
     return msgs;
 };
 
+SpriteMorph.prototype.allSendersOf = function (message, receiverName, known) {
+    return this.allScripts().filter(script =>
+        script.isSending && script.isSending(message, receiverName, known)
+    );
+};
+
 SpriteMorph.prototype.allHatBlocksFor = function (message) {
-    if (typeof message === 'number') {message = message.toString(); }
+    if (typeof message === 'number') { message = message.toString(); }
     return this.scripts.children.filter(morph => {
         var event;
         if (morph.selector) {
@@ -5854,6 +5845,25 @@ SpriteMorph.prototype.allGenericHatBlocks = function () {
         }
         return false;
     });
+};
+
+SpriteMorph.prototype.allScripts = function () {
+    var all = this.scripts.children.slice();
+    this.customBlocks.forEach(def => {
+        if (def.body) {
+            all.push(def.body.expression);
+        }
+        def.scripts.forEach(scr => all.push(scr));
+    });
+    if (this.globalBlocks) {
+        this.globalBlocks.forEach(def => {
+            if (def.body) {
+                all.push(def.body.expression);
+            }
+            def.scripts.forEach(scr => all.push(scr));
+        });
+    }
+    return all;
 };
 
 // SpriteMorph events
@@ -9188,6 +9198,9 @@ StageMorph.prototype.yBottom = function () {
 StageMorph.prototype.allMessageNames
     = SpriteMorph.prototype.allMessageNames;
 
+StageMorph.prototype.allSendersOf
+    = SpriteMorph.prototype.allSendersOf;
+
 StageMorph.prototype.allHatBlocksFor
     = SpriteMorph.prototype.allHatBlocksFor;
 
@@ -9199,6 +9212,9 @@ StageMorph.prototype.allHatBlocksForInteraction
 
 StageMorph.prototype.allGenericHatBlocks
     = SpriteMorph.prototype.allGenericHatBlocks;
+
+StageMorph.prototype.allScripts
+    = SpriteMorph.prototype.allScripts;
 
 // StageMorph events
 
@@ -9330,6 +9346,21 @@ StageMorph.prototype.reportPenTrailsAsCostume = function () {
         this.trailsCanvas,
         this.newCostumeName(localize('Background'))
     );
+};
+
+// StageMorph scanning global custom blocks for message sends
+
+StageMorph.prototype.globalBlocksSending = function (message, receiverName) {
+    // "transitive hull"
+    var all = this.globalBlocks.filter(
+            def =>def.isSending(message, receiverName)
+        );
+    this.globalBlocks.forEach(def => {
+        if (def.collectDependencies().some(dep => contains(all, dep))) {
+            all.push(def);
+        }
+    });
+    return all;
 };
 
 // SpriteBubbleMorph ////////////////////////////////////////////////////////
@@ -9491,7 +9522,7 @@ SpriteBubbleMorph.prototype.dataAsMorph = function (data) {
         // scale contents image
         scaledImg = newCanvas(contents.extent().multiplyBy(this.scale));
         scaledImg.getContext('2d').drawImage(
-            contents.cachedImage,
+            contents.getImage(),
             0,
             0,
             scaledImg.width,
@@ -9832,16 +9863,19 @@ Costume.prototype.thumbnail = function (extentPoint, recycleMe) {
     // my thumbnail representation keeping the originial aspect ratio
     // a "recycleMe canvas can be passed for re-use
     var src = this.contents, // at this time sprites aren't composite morphs
-        scale = Math.min(
-            (extentPoint.x / src.width),
-            (extentPoint.y / src.height)
-        ),
-        xOffset = (extentPoint.x - (src.width * scale)) / 2,
-        yOffset = (extentPoint.y - (src.height * scale)) / 2,
+        scale, xOffset, yOffset,
         trg = newCanvas(extentPoint, true, recycleMe), // non-retina
         ctx = trg.getContext('2d');
 
     if (!src || src.width + src.height === 0) {return trg; }
+
+    scale = Math.min(
+        (extentPoint.x / src.width),
+        (extentPoint.y / src.height)
+    );
+    xOffset = (extentPoint.x - (src.width * scale)) / 2;
+    yOffset = (extentPoint.y - (src.height * scale)) / 2;
+
     ctx.save();
     ctx.scale(scale, scale);
     ctx.drawImage(
@@ -10911,11 +10945,13 @@ CellMorph.prototype.render = function (ctx) {
         ctx.closePath();
         ctx.stroke();
 
-        ctx.shadowOffsetX = this.border;
-        ctx.shadowOffsetY = this.border;
-        ctx.shadowBlur = this.border;
-        ctx.shadowColor = this.color.darker(80).toString();
-        this.drawShadow(ctx, this.edge, this.border / 2);
+        if (useBlurredShadows) {
+            ctx.shadowOffsetX = this.border;
+            ctx.shadowOffsetY = this.border;
+            ctx.shadowBlur = this.border;
+            ctx.shadowColor = this.color.darker(80).toString();
+            this.drawShadow(ctx, this.edge, this.border / 2);
+        }
     }
 };
 
@@ -10980,7 +11016,7 @@ CellMorph.prototype.reactToEdit = function (textMorph) {
         if (listWatcher) {
             listWatcher.list.put(
                 textMorph.text,
-                this.idx
+                this.idx + listWatcher.start - 1
             );
         }
     }

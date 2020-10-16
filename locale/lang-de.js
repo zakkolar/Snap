@@ -185,7 +185,7 @@ SnapTranslator.dict.de = {
     'translator_e-mail':
         'jens@moenig.org, jadga.huegle@sap.com', // optional
     'last_changed':
-        '2020-07-09', // this, too, will appear in the Translators tab
+        '2020-10-05', // this, too, will appear in the Translators tab
 
     // GUI
     // control bar:
@@ -989,6 +989,8 @@ SnapTranslator.dict.de = {
         'Sprache...',
     'Zoom blocks...':
         'Bl\u00f6cke vergr\u00f6\u00dfern...',
+    'Fade blocks...':
+        'Bl\u00f6cke ausblenden...',
     'Stage size...':
         'B\u00fchnengr\u00f6\u00dfe...',
     'Stage size':
@@ -1172,6 +1174,10 @@ SnapTranslator.dict.de = {
         'nur diesen Block duplizieren',
     'delete':
         'L\u00f6schen',
+    'senders...':
+        'Sender...',
+    'receivers...':
+        'Empfänger...',
     'script pic...':
         'Skriptbild...',
     'save a picture\nof this script':
@@ -1198,6 +1204,10 @@ SnapTranslator.dict.de = {
         'Blockdefinition l\u00f6schen...',
     'duplicate block definition...':
         'Blockdefinition duplizieren...',
+    'export block definition...':
+        'Blockdefinition exportieren...',
+    'including dependencies':
+        'mit allen verwendeten Blöcken',
     'edit...':
         'Bearbeiten...',
 
@@ -1347,6 +1357,24 @@ SnapTranslator.dict.de = {
         'gigantisch (8x)',
     'monstrous (10x)':
         'ungeheuerlich (10x)',
+
+    // fade blocks
+    'Fade blocks':
+        'Bl\u00f6cke ausblenden',
+    'block-solid (0)':
+        'normal (0)',
+    'medium (50)':
+        'mittel (50)',
+    'light (70)':
+        'leicht (70)',
+    'shimmering (80)':
+        'schimmernd (80)',
+    'elegant (90)':
+        'elegant (90)',
+    'subtle (95)':
+        'angedeutet (95)',
+    'text-only (100)':
+        'nur Text (100)',
 
     // Project Manager
     'Untitled':
@@ -1880,7 +1908,7 @@ SnapTranslator.dict.de = {
     'other clones':
         'andere Klone',
     'dangling?':
-        'Baumeln?',
+        'baumelnd?',
     'draggable?':
         'greifbar?',
     'rotation style':
@@ -1917,6 +1945,26 @@ SnapTranslator.dict.de = {
         'Rand oben',
     'bottom':
         'Rand unten',
+
+    // attributes in the SET block's dropdown
+    'my anchor':
+        'Attribut Verankerung',
+    'my parent':
+        'Attribut Vorfahr',
+    'my name':
+        'Attribut Name',
+    'my temporary?':
+        'Attribut temporär?',
+    'my dangling?':
+        'Attribut baumelnd?',
+    'my draggable?':
+        'Attribut greifbar?',
+    'my rotation style':
+        'Attribut Drehtyp',
+    'my rotation x':
+        'Attribut Drehpunkt x',
+    'my rotation y':
+        'Attribut Drehpunkt y',
 
     // inheritance
     'inherited':

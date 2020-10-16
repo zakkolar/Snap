@@ -2,6 +2,329 @@
 
 ## in development:
 
+### 2020-10-15
+* new dev version
+* Russian translation update, thanks, Pavel!
+
+## 6.2.4
+* **Documentation Updates:**
+    * Reference manual update
+* **Notable Fixes:**
+    * fixed showing message senders if there are comments in scripts
+* **Translation Updates:**
+    * Russian, thanks, Pavel!
+
+### 2020-10-09
+* new dev version
+* objects: fixed showing message senders if there are comments in scripts
+* Russian translation update, thanks, Pavel!
+* prepared patch
+
+## 6.2.3
+* **Notable Fixes:**
+    * disabled "result pic" option for custom block definitions
+* **Translation Updates:**
+    * Greek, thanks, HM100!
+
+### 2020-10-09
+* new dev version
+* Greek translation update, thanks, HM100!
+* blocks: disabled "result pic" option for custom block definitions
+* prepared patch
+
+## 6.2.2
+* **New Features:**
+    * new "add comment" option in the block context menu, thanks, Rob Fidler!
+    * new "settings" button in the input slot dialog
+    * added "bar / lines" option for plotting charts in the "frequency distribution analysis" library
+    * enabled "result pic" for command scripts containing a "report" block
+* **Notable Changes:**
+    * made (hidden) "Blurred shadows" setting persistent, use to get rid of "red bar" artifacts on old laptops using Chrome
+    * specifying alpha values is now optional for generating pixels in bitmaps (costumes), none means the pixel is solid 
+    * attribute selection in the SET block are now prefixed with "my"
+    * assume stage dimensions for "SWITCH TO COSTUME" with list if current costume dimensions don't fit
+    * new "48 kHz" option in the "sampling rate" dropdown 
+    * increased area / sensitivity for collapsing variadic input slots, esp. on mobile devices
+* **Notable Fixes:**
+    * "append" block now shows up when searching  for it
+    * disable blurred shadows inside input slots if the hidden "blurred shadows" setting is turned off, use this setting on old laptops displaying "red bars" in Chrome 
+* **Translation Updates:**
+    * Greek, thanks, HM100!
+    * German
+
+### 2020-10-08
+* blocks: enabled "result pic" for command scripts containing a "report" block
+* prepared release
+
+### 2020-10-07
+* byob: added "settings" button to input slot dialog
+* symbols: added "gearPartial" icon
+* blocks: fixed an empty-slot detection issue (reported in the forums), but left it commented out for now, until researching the consequences ;-)
+* blocks: increased area / sensitivity for collapsing variadic input slots 
+* blocks: tweaked expanding variadic inputs
+* blocks: reverted sensitivity tweaks for variadic inputs
+* blocks, threads: reintroduced a different approach for making it easier to collapse variadic inputs
+
+### 2020-10-06
+* blocks: disable blurred shadows inside input slots if the hidden "blurred shadows" setting is turned off
+* widgets: honor (hidden) blurred shadows setting for input widgets
+* objects: honor (hidden) blurred shadows setting for watcher cell widgets
+* tables: honor (hidden) blurred shadows setting for pictograms in tables
+* gui: made (hidden) "Blurred shadows" setting persistent, use to get rid of "red bar" artifacts on old laptops using Chrome
+* blocks: fixed a zoom blocks glitch
+* byob: fixed positioning of loop arrow symbol in the input slot dialog
+
+### 2020-10-05
+* Greek translation updata, thanks, HM100!
+* blocks, threads: prefixed attribute selection in the SET block with "my" 
+* German translation update
+* objects: assume stage dimensions for "SWITCH TO COSTUME" with list if current costume dimensions don't fit
+
+### 2020-10-04
+* threads: made alpha values optional for generating costume pixels, none = solid
+* objects: fixed #2694 - removed "dev" flag from "append" primitive - made sure it shows up in block-search
+
+### 2020-09-28
+* tweaked "frequency distribution analysis" library to plot lines in any color or style
+ 
+### 2020-09-25
+* new dev version
+* updated "frequency distribution analysis" library: New "lines" option for plotting
+* blocks: new "add comment" option in the block context menu, thanks, Rob Fidler!
+* blocks: added "48 kHz" option to the "sampling rate" dropdown 
+
+## 6.2.1
+* **New Features:**
+    * added "get value from key" reporter to database library, thanks, Brian! 
+* **Notable Changes:**
+    * updated reference manual for v6.2, thanks, Brian!
+* **Notable Fixes:**
+    * fixed translatability of certain drop-downs such as "point in direction _"
+* **Translation Updates:**
+    * Turkish, thanks, Turgut!
+    * Italian, thanks, Stefano!
+
+### 2020-09-21
+* reference manual update to v6.2, thanks, Brian!
+* added single record query to data library, thanks, Brian
+* Turkish translation update, thanks ,Turgut!
+* Italian translation update, thanks, Stefano!
+
+### 2020-09-20
+* new dev version
+* blocks: fixed translatability of certain drop-downs such as "point in direction _"
+
+## 6.2.0:
+* **New Features:**
+    * show message senders and receivers from the blocks context menu
+    * "export block definition" including dependencies
+    * hyperized "distance/direction to _" reporter primitive
+    * new "Database" library operating on localstore
+* **Notable Changes:**
+    * swapped version number and "Build Your Own Blocks" in page title
+* **Notable Fixes:**
+    * changing the type of a custom block from reporter to command in the block editor changes the prototype instead of adding another one
+    * deleting project notes in the "save" dialog now also deletes them in the saved project
+    * items in list-boxes such as the project list are no longer auto-translated
+    * fixed a redo issue
+    * fixed a rare race condition when loading projects
+* **Translation Updates:**
+    * Catalan, thanks, Joan!
+    * Norwegian, thanks, Olav!
+    * German
+
+### 2020-09-18
+* objects: Fixed costume thumbnail for asynch loading, thanks, Bernat!
+* prepared release
+
+### 2020-09-14
+* blocks: fixed "redrop" (redo)
+* byob: consolidated custon block definition update counter, thanks, Brian B.!
+
+### 2020-09-12
+* morphic: don't auto-translate ListMorph items
+
+### 2020-09-10
+* added input type assertions to Database library
+
+### 2020-09-08
+* swapped version number and "Build Your Own Blocks" in page title
+
+### 2020-09-07
+* gui: deleting project notes in the "save" dialog now also deletes them in the saved project
+
+### 2020-09-04
+* byob, blocks, objects: refactored scanning for message senders
+* blocks: support scanning for message receivers from inside a block editor
+* blocks: fixed changing the type of a custom block from reporter to command in the block editor
+
+### 2020-09-03
+* byob: experimental: Inspect & export dependencies for global custom blocks (shift-right-click for context menu)
+* byob: new feature: "export block definition" including dependencies
+* blocks, byob, objects: find message sends in global custom blocks dependencies
+
+### 2020-09-02
+* threads: hyperized "distance/direction to _" reporter primitive
+
+### 2020-09-01
+* Norwegian translation update, thanks, Olav
+* gui, blocks: fixed a bunch of typos and UI strings, thanks, Brian Broll!
+* colors library update, thanks, Brian H.! 
+* German translation update
+* objects: also scan custom blocks for message sends
+
+### 2020-08-31
+* Catalan translation update, thanks, Joan!
+
+### 2020-08-18
+* blocks: tweaked menu separator line above "senders.../receivers..." to only show once
+
+### 2020-08-08
+* blocks: changed "show senders/receivers" menu entry to "senders.../receivers..."
+* gui: tweaked SpriteIconMorph>>flash() for flat design mode
+
+### 2020-08-07
+* new dev version
+* added new localstorage library
+* show message senders / receivers from the blocks context menu, thanks, Bernat!
+
+## 6.1.4:
+* fixed "green flag" symbol size for embedded proects (for real ^^)
+
+## 6.1.3:
+* **Notable Changes:**
+    * exporting pictures of (semi-) faded blocks now includes the cropped solid background color
+    * "to lowercase" reporter now also in Strings library, thanks, Brian!
+* **Notable Fixes:**
+    * fixed restoring ringed inputs when relabelling and compiling HOFs
+    * added viewport, thanks, Radman!
+    * fixed "green flag" symbol size for community website, thanks, Bernat!
+* **Translation Updates:**
+    * Catalan, thanks, Joan!
+    * Portuguese, thanks, Manuel!
+
+### 2020-08-05
+* threads: experimental hyperized reporter-if, commented out for now
+* blocks: fixed restoring ringed inputs when relabelling and compiling HOFs
+* added viewport, thanks, Radman!
+* Catalan translation update, thanks, Joan!
+* Portuguese translation update, thanks, Manuel!
+* added blocks to Strings library, thanks, Brian!
+* fixed "green flag" symbol size for community website, thanks, Bernat!
+
+### 2020-08-04
+* new dev version
+* blocks: include background color when exporting (semi-) transparent script pics 
+
+## 6.1.2:
+* fixed variable scope for ASK/TELL
+
+### 2020-08-01
+* threads: fixed variable scope for ASK/TELL
+
+## 6.1.1:
+* rolled back scope binding change
+
+### 2020-07-31
+* rolled back scope binding change
+
+## 6.1.0:
+* **New Features:**
+    * fade blocks
+* **Documentation Updates:**
+    * added migration guide for Morphic2/Snap!6
+* **Notable Changes:**
+    * changed label of green "length of" reporter to "length of text"
+    * new iconic buttons for grow, shrink and flip actions in the paint editor, thanks, Jadga!
+    * UI: automatically switch to scripts tab when dragging a block into the editor pane
+    * slightly darker default (non-flat) IDE colors, more cotrast
+    * enabled grouping the libraries dialog, thanks, Brian!
+    * cleaned up, grouped and annotated libraries, thanks, Brian!
+    * updated "About Snap!" dialog box
+* **Notable Fixes:**
+    * fixed FOR EACH for hybrid lists, thanks, Brian!
+    * fixed script execution behavior when turning turbo mode off programmatically, thanks, Jadga, for reporting it.
+    * fixed keyboard shortcuts for saving projects (ctrl + s), finding blocks (ctrl + f) etc..
+    * fixed shift-key constrain mode and "clear" in paint and vector editors, thanks, Joan!
+    * made remaining synchronous http requests asynch (url: #open, #run)
+    * update the Hand's position on mouse-down - avoid triggering at the origin point if clicking before the mouse has been moved
+    * fixed a list-watcher direct-editing index offset bug
+    * fixed input slider target update rendering
+    * fixed sprite speech balloon display for sounds
+    * library browser: import selected library on pressing enter
+    * fixed binding contexts to other receivers (variable scope for ASK / TELL)
+    * fixed numeric input fields in dialog boxes
+    * fixed reacting to keyboard input in dialog boxes
+    * fixed zoom blocks type-in dialog
+    * made stack-highlights un-touchable
+* **Translation Updates:**
+    * German
+
+### 2020-07-30
+* gui: updated Jadga as contributor in credits
+* prepared release
+
+### 2020-07-29
+* blocks: made stack-highlights un-touchable
+
+### 2020-07-28
+* blocks: tweaked stack-highlight for (partially) faded blocks
+
+### 2020-07-27
+* threads: fixed binding contexts to other receivers (variable scope for ASK / TELL)
+* gui: updated "About Snap!" dialog box
+* gui: library browser: import selected library on pressing enter
+* widgets: fixed numeric input fields in dialog boxes
+* widgets: fixed reacting to keyboard input in dialog boxes
+* blocks: fixed zoom blocks type-in dialog
+
+### 2020-07-26
+* objects: fixed sprite speech balloon display for sounds
+* cleaned up, grouped and annotated libraries, thanks, Brian!
+
+### 2020-07-24
+* gui: cleaned up block-fading pre-sets
+* updated German translation
+* gui: tweaked IDE colors for block-fading
+* blocks, threads, byob, widgets: tweaked block representations in widgets for fading
+* blocks, byob: tweaked more block representations in widgets for fading
+
+### 2020-07-23
+* morphic: fixed mouseDown events for touch devices
+* morphic, gui: added separators to list morphs, '~' for the libraries dialog
+* blocks: tweaked block-fading coloring 
+
+### 2020-07-22
+* morphic, blocks, gui: tweaked block-fading mouse-over
+* blocks, threads: tweaked context visualizations to be alpha-independent
+* gui: save block-transparency in  settings 
+* morphic: fixed input slider target update rendering
+
+### 2020-07-21
+* blocks: tweaked block highlights for fade-out
+* widgets, gui: tweaked scripts tab for fade-out
+* blocks, gui: tweaked default mode colors to slightly darker
+
+### 2020-07-20
+* objects: fixed a list-watcher direct-editing offset bug
+* morphic: update the Hand's position on mouse-down - avoid triggering at the origin point
+* symbols: added hooks for dynamic coloring
+* blocks: added blocks-fading support for symbols (under construction)
+* morphic: tweaked transparency of grabbed morphs
+
+### 2020-07-19
+* blocks: blocks-fade-out support for label arrows (under construction)
+* blocks: blocks-fade-out support for multi-line inputs (under construction)
+
+### 2020-07-17
+* morphic, blocks: blocks-fadeout (under construction)
+
+### 2020-07-15
+* morphic: made keyboard handler (more) invisible, thanks, Bernat!
+* gui: made remaining synchronous http requests asynch (url: #open, #run)
+* morphic, gui: switch to scripts tab when dragging a block into the editor pane
+* blocks: refactored transparency handling for syntax elements
+
 ### 2020-07-13
 * paint, symbols: new iconic buttons for grow, shrink and flip actions, thanks, Jadga!
 * sketch: tweaked layout to match the paint editor's
@@ -17,7 +340,7 @@
 * threads: fixed FOR EACH for hybrid lists, thanks, Brian!
 * threads: fixed script execution behavior when turning turbo mode off programmatically, thanks, Jadga, for reporting it.
 * locale: added English translation for 'length of %s' to 'length of text %s' to avoid confusion among both blocks
-* updated German translation for  'length of %s'
+* updated German translation for 'length of %s'
 
 ## 6.0.0:
 * **New Features:**
