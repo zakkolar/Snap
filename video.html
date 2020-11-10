@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Snap! Build Your Own Blocks 6.1.3 - dev -</title>
+    <link rel="icon" href="src/favicon.ico">
+    <script src="src/morphic.js?version=2020-07-23"></script>
+    <script src="src/symbols.js?version=2020-07-21"></script>
+    <script src="src/widgets.js?version=2020-07-27"></script>
+    <script src="src/blocks.js?version=2020-08-04"></script>
+    <script src="src/threads.js?version=2020-08-01"></script>
+    <script src="src/objects.js?version=2020-07-26"></script>
+    <script src="src/gui.js?version=2020-08-04"></script>
+    <script src="src/paint.js?version=2020-05-17"></script>
+    <script src="src/lists.js?version=2020-07-01"></script>
+    <script src="src/byob.js?version=2020-07-24"></script>
+    <script src="src/tables.js?version=2020-05-18"></script>
+    <script src="src/sketch.js?version=2020-07-13"></script>
+    <script src="src/video.js?version=2019-06-27"></script>
+    <script src="src/maps.js?version=2020-03-25"></script>
+    <script src="src/xml.js?version=2020-04-27"></script>
+    <script src="src/store.js?version=2020-07-08"></script>
+    <script src="src/locale.js?version=2020-07-24"></script>
+    <script src="src/cloud.js?version=2020-05-17"></script>
+    <script src="src/api.js?version=2020-07-06"></script>
+    <script src="src/sha512.js?version=2019-06-27"></script>
+    <script src="src/FileSaver.min.js?version=2019-06-27"></script>
+    <script>
+        var world;
+        window.onload = function () {
+
+            world = new WorldMorph(document.getElementById('world'));
+            new IDE_Morph().openIn(world);
+
+
+            var VideoPlayerMorph;
+
+
+            VideoPlayerMorph.prototype = new DialogBoxMorph();
+            VideoPlayerMorph.prototype.constructor = VideoPlayerMorph;
+            VideoPlayerMorph.uber = DialogBoxMorph.prototype;
+
+            function VideoPlayerMorph(){
+                this.init();
+            }
+
+            VideoPlayerMorph.prototype.init = function(){
+                var myself = this;
+                VideoPlayerMorph.uber.init.call(this);
+
+
+                this.labelString = 'Video player';
+                this.createLabel();
+
+
+                // player buttons
+                this.addButton('close','close');
+                this.addButton('play','play');
+                this.addButton('pause','pause');
+                this.addButton('stop','stop');
+
+
+                // set up video player
+                this.playerArea = new Morph();
+
+                this.playerArea.setWidth(40)
+                this.playerArea.setHeight(50);
+
+                this.addBody(this.playerArea);
+
+
+                this.video = document.createElement('video');
+                // this.video.style['position'] = 'absolute';
+                // this.video.style['right'] = '0';
+                this.canvas = newCanvas(null, true);
+                // this.canvas.style['position'] = 'absolute';
+                // this.canvas.style['top'] = '300px';
+                // this.canvas.style['right'] = '0';
+                //
+                // document.body.append(this.video);
+                // document.body.append(this.canvas);
+
+
+                this.video.addEventListener('loadedmetadata', function(){
+                    myself.canvas.width = myself.video.videoWidth;
+                    myself.canvas.height = myself.video.videoHeight;
+                    myself.playerArea.setWidth(myself.video.videoWidth);
+                    myself.playerArea.setHeight(myself.video.videoHeight);
+                    myself.fixLayout();
+                });
+
+                this.video.addEventListener('play', function(){
+                    var ctx = myself.canvas.getContext('2d');
+                    var v = this;
+                    (function drawFrame(){
+                        if(!myself.video.paused && !myself.video.ended){
+
+                            // retina support does not play nicely here, so call the original drawImage
+                            if(isRetinaEnabled()){
+                                HTMLCanvasElement.prototype._bak.drawImage.call(ctx, v,0,0, myself.canvas.width, myself.canvas.height)
+                            }
+                            else{
+                                ctx.drawImage(v,0,0, myself.canvas.width, myself.canvas.height);
+                            }
+
+
+                            myself.playerArea.isCachingImage = true;
+                            myself.playerArea.cachedImage = myself.canvas; // should we copy the canvas?
+                            myself.playerArea.bounds.setWidth(myself.video.videoWidth);
+                            myself.playerArea.bounds.setHeight(myself.video.videoHeight);
+                            myself.fixLayout();
+                            requestAnimationFrame(drawFrame);
+                        }
+                    })();
+                });
+
+                // this.setExtent(new Point(375, 300)); // normal initial extent
+
+                this.fixLayout();
+
+                this.loadVideo('http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv');
+
+            }
+
+            VideoPlayerMorph.prototype.loadVideo = function(src){
+                this.video.src = src;
+            }
+
+            VideoPlayerMorph.prototype.play = function(){
+                this.video.play();
+            }
+
+            VideoPlayerMorph.prototype.pause = function(){
+                this.video.pause();
+            }
+
+            VideoPlayerMorph.prototype.stop = function(){
+                this.pause();
+                this.video.currentTime = 0;
+            }
+
+            VideoPlayerMorph.prototype.close = function(){
+                this.stop();
+                this.destroy();
+            }
+
+           var player = new VideoPlayerMorph();
+
+            world.add(player);
+
+
+            loop();
+        };
+        function loop() {
+            requestAnimationFrame(loop);
+            world.doOneCycle();
+        }
+    </script>
+</head>
+<body style="margin: 0;">
+<canvas id="world" tabindex="1" style="position: absolute;"></canvas>
+</body>
+</html>
