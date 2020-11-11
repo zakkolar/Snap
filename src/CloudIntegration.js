@@ -1,12 +1,11 @@
 /*
-create src/CloudCredentials.js with the following contents:
-var CLOUD_CREDENTIALS = {
-    google: {
-        GOOGLE_CLIENT_ID: '[your client ID]]',
-        GOOGLE_API_KEY: '[your API key]'
-    }
-};
+1. Duplicate ./CloudIntegrationConfig.js.sample as ./CloudIntegrationConfig.js
+2. Fill in values
  */
+
+if(typeof CLOUD_INTEGRATION_CONFIG === 'undefined'){
+    throw new Error("Can't find Cloud Integration Configuration. Make sure to duplicate src/CloudIntegrationConfig.js.sample as src/CloudIntegrationConfig.js and fill in the appropriate values.")
+}
 
 var CloudIntegration = function(label){
     this.init(label);
@@ -40,6 +39,7 @@ CloudIntegration.prototype.showSignIn = function(ide){
         reject('Implement showSignIn!');
     })
 }
+
 
 //////////////////
 
@@ -98,11 +98,23 @@ GoogleConnection.prototype.initClient = function(){
         //
         // // Handle the initial sign-in state.
         myself.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+
         // authorizeButton.onclick = handleAuthClick;
         // signoutButton.onclick = handleSignoutClick;
     }, function(error) {
-        console.log(error);
+       throw new Error(error);
     });
+}
+
+GoogleConnection.prototype.getUserInfo = function(){
+    if(this.signedIn){
+        var profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+
+        return {
+            domain: profile.getEmail().split('@')[1]
+        }
+    }
+    return null;
 }
 
 GoogleConnection.prototype.showSignIn = function(ide){
@@ -139,11 +151,35 @@ GoogleConnection.prototype.getSnapFiles = function(){
                     if (files && files.length > 0) {
                         for (var i = 0; i < files.length; i++) {
                             var file = files[i];
+
+                            var canShare = file.capabilities.canShare;
+                            var currentPublicPermissionId = null;
+
+                            var currentPublicPermissionType = null;
+
+                            for(let permission of file.permissions){
+
+
+
+                                if(permission.type === 'anyone' || permission.type === 'domain'){
+                                    currentPublicPermissionId = permission.id;
+                                    currentPublicPermissionType = permission.type;
+                                }
+
+
+                            }
+
                             result.push({
                                 name: file.name.replace('.xml',''),
                                 id: file.id,
-                                lastupdated: new Date(file.modifiedTime).toLocaleString()
+                                lastupdated: new Date(file.modifiedTime).toLocaleString(),
+                                canShare,
+                                currentPublicPermissionId,
+                                currentPublicPermissionType
+
                             });
+
+
                         }
                     }
                     if(response.result.nextPageToken){
@@ -159,7 +195,7 @@ GoogleConnection.prototype.getSnapFiles = function(){
             retrievePageOfFiles({
                 'q': "mimeType = 'text/xml' and fullText contains 'app=\"Snap' and '"+folderId+"' in parents and trashed = false",
                 'pageSize': 100,
-                'fields': "nextPageToken, files(id, name, modifiedTime)",
+                'fields': "nextPageToken, files(id, name, modifiedTime, permissions, capabilities)",
             }, []);
         }, (e)=>reject(e));
     })
@@ -185,6 +221,54 @@ GoogleConnection.prototype.downloadFile = function(id){
     })
 
 
+}
+
+GoogleConnection.prototype.changeSharing = function (file, mode){
+    return new Promise((resolve, reject)=>{
+        if(mode === 'unshare'){
+            this.unshareFile(file.id, file.currentPublicPermissionId, resolve, reject)
+        }
+        else{
+
+            if(file.currentPublicPermissionId){
+                // remove previous public permission first to avoid confusing Google Drive
+                this.unshareFile(file.id, file.currentPublicPermissionId, ()=>{
+                    this.shareFile(file.id, mode, resolve, reject);
+                }, reject)
+            }
+
+            else{
+                this.shareFile(file.id, mode, resolve, reject);
+            }
+
+        }
+    });
+}
+
+GoogleConnection.prototype.unshareFile = function(fileId, permissionId, onSuccess, onFail){
+    gapi.client.drive.permissions.delete({fileId, permissionId}).then((data)=>{
+        onSuccess();
+    }, (data)=>{
+        onFail(data);
+    });
+}
+
+GoogleConnection.prototype.shareFile = function (fileId, permissionType, onSuccess, onFail){
+    var params = {
+            fileId,
+            role: 'reader',
+            type:permissionType
+        };
+
+    if(permissionType === 'domain'){
+        params['domain'] = this.getUserInfo().domain;
+    }
+
+    gapi.client.drive.permissions.create(params).then((data)=>{
+        onSuccess(data.result.id);
+    }, (data)=>{
+        onFail(data);
+    });
 }
 
 GoogleConnection.prototype.updateSigninStatus = function(isSignedIn){
@@ -352,12 +436,23 @@ ProjectDialogMorph.prototype.saveCloudIntegrationProject = function () {
 var originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(){
     originalInit.call(this);
-    this.cloudConnections = {
-       google: new GoogleConnection({
-            clientId: CLOUD_CREDENTIALS.google.GOOGLE_CLIENT_ID,
-            apiKey: CLOUD_CREDENTIALS.google.GOOGLE_API_KEY
-        })
+    this.cloudConnections = {}
+
+    if(CLOUD_INTEGRATION_CONFIG.credentials.google){
+        this.cloudConnections['google'] = new GoogleConnection({
+            clientId: CLOUD_INTEGRATION_CONFIG.credentials.google.GOOGLE_CLIENT_ID,
+            apiKey: CLOUD_INTEGRATION_CONFIG.credentials.google.GOOGLE_API_KEY
+        });
     }
+}
+
+// @override
+var originalCreateControlbar = IDE_Morph.prototype.createControlBar;
+IDE_Morph.prototype.createControlBar = function(){
+    if(CLOUD_INTEGRATION_CONFIG.settings.DISABLE_SNAP_CLOUD){
+        this.cloud.disable();
+    }
+    originalCreateControlbar.call(this);
 }
 
 // @override
@@ -386,7 +481,10 @@ ProjectDialogMorph.prototype.buildContents = function () {
         this.srcBar.add(notification);
     }
 
-    this.addSourceButton('cloud', localize('Cloud'), 'cloud');
+
+    if (!this.ide.cloud.disabled) {
+        this.addSourceButton('cloud', localize('Cloud'), 'cloud');
+    }
 
     // @new
     for(let connection in this.ide.cloudConnections){
@@ -510,6 +608,26 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.deleteButton = this.addButton('deleteProject', 'Delete');
     this.addButton('cancel', 'Cancel');
 
+    // @new - add cloud integration sharing buttons
+
+    // google
+
+    this.googleShareDomainButton = this.addButton(()=>{
+        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'domain')
+    }, 'Share (anyone with link within domain)', true);
+    this.googleShareEveryoneButton = this.addButton(()=>{
+        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'anyone')
+    }, 'Share (anyone with link)', true);
+    this.googleUnshareButton = this.addButton(()=>{
+        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'unshare')
+    }, 'Unshare', true);
+
+    this.googleShareDomainButton.hide();
+    this.googleShareEveryoneButton.hide();
+    this.googleUnshareButton.hide();
+
+    // end new
+
     if (notification) {
         this.setExtent(new Point(500, 360).add(notification.extent()));
     } else {
@@ -522,11 +640,7 @@ ProjectDialogMorph.prototype.buildContents = function () {
 // @override
 ProjectDialogMorph.prototype.setSource = function (source) {
     var msg;
-
-
     this.source = source;
-
-
     this.srcBar.children.forEach(button =>
         button.refresh()
     );
@@ -592,6 +706,8 @@ ProjectDialogMorph.prototype.setSource = function (source) {
     this.renderList();
 };
 
+
+
 // @refactored from ProjectDialogMorph.prototype.setSource
 // @override as well
 ProjectDialogMorph.prototype.renderList = function(){
@@ -645,13 +761,37 @@ ProjectDialogMorph.prototype.renderList = function(){
     }
     // @new
     else if (this.source && this.source.indexOf('cloud-integration')>-1) {
-        var cloudConnection = this.ide.cloudConnections[this.source.split(':')[1]];
+        var cloudConnectionType = this.source.split(':')[1];
+        var cloudConnection = this.ide.cloudConnections[cloudConnectionType];
         this.listField.action = (item) => {
             var src, xml;
             if (item === undefined) {return; }
 
             if (this.nameField) {
                 this.nameField.setContents(item.name || '');
+            }
+            if(cloudConnectionType === 'google'){
+
+                this.googleUnshareButton.show();
+                this.googleShareEveryoneButton.show();
+                this.googleShareDomainButton.show();
+                if(item.canShare){
+                    switch(item.currentPublicPermissionType){
+                        case 'domain':
+                            this.googleShareDomainButton.hide();
+                            break;
+                        case 'anyone':
+                            this.googleShareEveryoneButton.hide();
+                            break;
+                        default:
+                            this.googleUnshareButton.hide();
+                    }
+                }
+
+                this.buttons.fixLayout();
+                this.fixLayout();
+                this.edit();
+
             }
 
             cloudConnection.downloadFile(item.id).then((src)=>{
@@ -701,6 +841,11 @@ ProjectDialogMorph.prototype.renderList = function(){
     this.body.add(this.listField);
     this.shareButton.hide();
     this.unshareButton.hide();
+
+    // @new
+    this.googleUnshareButton.hide();
+    this.googleShareEveryoneButton.hide();
+    this.googleShareDomainButton.hide();
 
     if (this.task === 'open') {
         this.recoverButton.hide();

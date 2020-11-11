@@ -1,4 +1,4 @@
 .DS_Store
 *.swp
 .tern-port
-src/CloudCredentials.js
+src/CloudIntegrationConfig.js

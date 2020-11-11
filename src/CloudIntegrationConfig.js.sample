@@ -1,0 +1,16 @@
+var CLOUD_INTEGRATION_CONFIG = {
+    credentials:{
+        // uncomment and fill in to enable Google Drive integration
+        // google: {
+        //     GOOGLE_CLIENT_ID: '',
+        //     GOOGLE_API_KEY: ''
+        // }
+    },
+    settings: {
+        // disable the built in Snap!Cloud UI elements
+        // NOTE: You cannot use Snap!Cloud storage unless your domain is allowed by Snap!Cloud's CORS policy:
+        // https://forum.snap.berkeley.edu/t/cors-policy-blocking-access-to-cloud-snap-berkeley-edu/1718/7
+        DISABLE_SNAP_CLOUD: true
+    }
+
+}
