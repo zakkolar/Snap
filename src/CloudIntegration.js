@@ -226,19 +226,31 @@ GoogleConnection.prototype.downloadFile = function(id){
 GoogleConnection.prototype.changeSharing = function (file, mode){
     return new Promise((resolve, reject)=>{
         if(mode === 'unshare'){
-            this.unshareFile(file.id, file.currentPublicPermissionId, resolve, reject)
+            this.unshareFile(file.id, file.currentPublicPermissionId, (data)=>{
+                file.currentPublicPermissionId = null;
+                file.currentPublicPermissionType = null;
+                resolve(data);
+            }, reject)
         }
         else{
 
             if(file.currentPublicPermissionId){
                 // remove previous public permission first to avoid confusing Google Drive
-                this.unshareFile(file.id, file.currentPublicPermissionId, ()=>{
-                    this.shareFile(file.id, mode, resolve, reject);
+                this.shareFile(file.id, mode, (data)=>{
+                    this.unshareFile(file.id, file.currentPublicPermissionId, ()=>{
+                        file.currentPublicPermissionId = data;
+                        file.currentPublicPermissionType = mode;
+                        resolve(data);
+                    }, reject);
                 }, reject)
             }
 
             else{
-                this.shareFile(file.id, mode, resolve, reject);
+                this.shareFile(file.id, mode, (data)=>{
+                    file.currentPublicPermissionId = data;
+                    file.currentPublicPermissionType = mode;
+                    resolve(data)
+                }, reject);
             }
 
         }
@@ -612,15 +624,9 @@ ProjectDialogMorph.prototype.buildContents = function () {
 
     // google
 
-    this.googleShareDomainButton = this.addButton(()=>{
-        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'domain')
-    }, 'Share (anyone with link within domain)', true);
-    this.googleShareEveryoneButton = this.addButton(()=>{
-        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'anyone')
-    }, 'Share (anyone with link)', true);
-    this.googleUnshareButton = this.addButton(()=>{
-        this.ide.cloudConnections['google'].changeSharing(this.listField.selected, 'unshare')
-    }, 'Unshare', true);
+    this.googleShareDomainButton = this.addButton('googleShareDomain', 'Share (within domain)', true);
+    this.googleShareEveryoneButton = this.addButton('googleShareEveryone', 'Share (anyone with link)', true);
+    this.googleUnshareButton = this.addButton('googleUnshare', 'Unshare', true);
 
     this.googleShareDomainButton.hide();
     this.googleShareEveryoneButton.hide();
@@ -636,6 +642,95 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.fixLayout();
 
 };
+
+// @new
+
+ProjectDialogMorph.prototype.googleChangeSharing = function(mode){
+    var file = this.listField.selected,
+    ide = this.ide;
+
+    if(!this.updatingGoogleSharing){
+        this.updatingGoogleSharing = true;
+
+        var updateMessage = ide.showMessage('updating sharing...')
+
+        this.ide.cloudConnections['google'].changeSharing(file, mode).then(
+            (data)=>{
+                updateMessage.destroy();
+                ide.showMessage('sharing updated.', 2);
+                switch(mode){
+                    case 'domain':
+                        this.googleShareDomainButton.hide();
+                        this.googleUnshareButton.show();
+                        this.googleShareEveryoneButton.show();
+                        break;
+                    case 'anyone':
+                        this.googleShareEveryoneButton.hide();
+                        this.googleUnshareButton.show();
+                        this.googleShareDomainButton.show();
+                        break;
+                    case 'unshare':
+                        this.googleShareDomainButton.show();
+                        this.googleShareEveryoneButton.show();
+                        this.googleUnshareButton.hide();
+                        break;
+
+                }
+
+                this.buttons.fixLayout();
+                this.fixLayout();
+                this.edit();
+                this.updatingGoogleSharing = false;
+            },
+            (data)=>{
+                updateMessage.destroy();
+
+                var message = 'Could not update sharing.\n'+data.result.error.message;
+
+                if(data.result.error.code === 500 && mode ==='domain'){
+                    message = 'Your Google account cannot limit sharing \n' +
+                        'to just your domain. Try sharing \n' +
+                        'with everyone with everyone instead'
+                }
+                if(data.result.error.code === 403){
+                    message = 'Your Google account cannot share \n' +
+                        'with everyone. Try sharing just \n' +
+                        'within your domain instead.'
+                }
+
+                new DialogBoxMorph().inform(
+                    'Google Drive',
+                    message,
+                    this.world(),
+                    ide.cloudIcon(null, new Color(180, 0, 0))
+                );
+
+                ide.showMessage();
+                console.error(data);
+                this.updatingGoogleSharing = false;
+            }
+        )
+
+    }
+
+
+
+
+}
+
+ProjectDialogMorph.prototype.googleShareDomain = function(){
+    this.googleChangeSharing('domain');
+}
+
+ProjectDialogMorph.prototype.googleShareEveryone = function(){
+    this.googleChangeSharing('anyone');
+}
+
+ProjectDialogMorph.prototype.googleUnshare = function(){
+    this.googleChangeSharing('unshare')
+}
+
+// end new
 
 // @override
 ProjectDialogMorph.prototype.setSource = function (source) {
