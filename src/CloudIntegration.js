@@ -40,6 +40,47 @@ CloudIntegration.prototype.showSignIn = function(ide){
     })
 }
 
+//////////////////
+
+var CloudIntegrationProject = function(params){
+    this.init(params);
+}
+
+CloudIntegrationProject.prototype.init = function(params){
+    if(!params){
+        params = {};
+    }
+
+    this.name = params.name || null;
+    this.id = params.id || null;
+    this.lastupdated = params.lastupdated || null;
+    this.ispublic = !!params.ispublic;
+}
+
+//////////////////
+
+var GoogleProject;
+
+GoogleProject.prototype = new CloudIntegrationProject();
+GoogleProject.prototype.constructor = GoogleProject;
+GoogleProject.uber = CloudIntegrationProject.prototype;
+
+function GoogleProject(params){
+    this.init(params);
+}
+
+GoogleProject.prototype.init = function(params) {
+
+    // initialize inherited properties:
+    GoogleProject.uber.init.call(this, params);
+
+    this.canShare = !!params.canShare;
+    this.currentPublicPermissionId = params.currentPublicPermissionId || null;
+    this.currentPublicPermissionType = params.currentPublicPermissionType || null;
+
+
+}
+
 
 //////////////////
 
@@ -158,18 +199,13 @@ GoogleConnection.prototype.getSnapFiles = function(){
                             var currentPublicPermissionType = null;
 
                             for(let permission of file.permissions){
-
-
-
                                 if(permission.type === 'anyone' || permission.type === 'domain'){
                                     currentPublicPermissionId = permission.id;
                                     currentPublicPermissionType = permission.type;
                                 }
-
-
                             }
 
-                            result.push({
+                            result.push(new GoogleProject({
                                 name: file.name.replace('.xml',''),
                                 id: file.id,
                                 lastupdated: new Date(file.modifiedTime).toLocaleString(),
@@ -177,7 +213,7 @@ GoogleConnection.prototype.getSnapFiles = function(){
                                 currentPublicPermissionId,
                                 currentPublicPermissionType
 
-                            });
+                            }));
 
 
                         }
@@ -960,6 +996,32 @@ ProjectDialogMorph.prototype.renderList = function(){
     }
 }
 
+ProjectDialogMorph.prototype.openCloudIntegrationProject = function (proj) {
+    var cloudConnectionKey = this.source.split(':')[1];
+    var cloudConnection = this.ide.cloudConnections[cloudConnectionKey];
+    var msg = this.ide.showMessage('Loading project\nfrom '+cloudConnection.label);
+    cloudConnection.downloadFile(proj.id).then((src)=>{
+        location.hash = '';
+        location.hash = '#cloud-integration-present:Source=' +
+            encodeURIComponent(cloudConnectionKey) +
+            '&ProjectId=' +
+            encodeURIComponent(proj.id);
+
+        cloudConnection.file = proj;
+        this.ide.nextSteps([
+            () => msg = this.ide.showMessage('Opening project...'),
+            () => {
+                this.ide.rawOpenProjectString(src);
+            },
+            () => this.ide.setProjectName(proj.name)
+        ]);
+    }, (e)=>{
+        console.error(e);
+        msg.destroy();
+        msg = this.ide.showMessage('Error retrieving project\nfrom '+cloudConnection.label);
+    });
+}
+
 
 // @override
 ProjectDialogMorph.prototype.openProject = function () {
@@ -976,23 +1038,7 @@ ProjectDialogMorph.prototype.openProject = function () {
         this.destroy();
         // @new
     } else if (this.source.indexOf('cloud-integration')>-1){
-        this.ide.source = this.source;
-        var cloudConnection = this.ide.cloudConnections[this.source.split(':')[1]];
-        var msg = this.ide.showMessage('Loading project\nfrom '+cloudConnection.label);
-        cloudConnection.downloadFile(proj.id).then((src)=>{
-            cloudConnection.file = proj;
-            this.ide.nextSteps([
-                () => msg = this.ide.showMessage('Opening project...'),
-                () => {
-                    this.ide.rawOpenProjectString(src);
-                },
-                () => this.ide.setProjectName(proj.name)
-            ]);
-        }, (e)=>{
-            console.error(e);
-            msg.destroy();
-            msg = this.ide.showMessage('Error retrieving project\nfrom '+cloudConnection.label);
-        });
+        this.openCloudIntegrationProject(proj)
     } else { // 'local'
         this.ide.source = null;
         this.ide.openProject(proj.name);
