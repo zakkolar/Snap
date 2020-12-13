@@ -19,6 +19,8 @@ MicroWorld.prototype.init = function () {
     this.zoom = null;
     this.enterOnLoad = false;
     this.isActive = false;
+    this.suppressedKeyEvents = [];
+    this.originalFireKeyEvent = StageMorph.prototype.fireKeyEvent;
 };
 
 MicroWorld.prototype.enter = function () {
@@ -62,6 +64,13 @@ MicroWorld.prototype.enter = function () {
 
     this.hideAllMorphs();
     this.ide.fixLayout();
+
+    StageMorph.prototype.fireKeyEvent = function(key){
+        if(myself.suppressedKeyEvents.indexOf(key) > -1){
+            return;
+        }
+        return myself.originalFireKeyEvent.call(this, key);
+    }
 };
 
 MicroWorld.prototype.escape = function () {
@@ -89,6 +98,8 @@ MicroWorld.prototype.escape = function () {
     ide.fixLayout();
 
     ide.savingPreferences = true;
+
+    StageMorph.prototype.fireKeyEvent = this.originalFireKeyEvent;
 };
 
 MicroWorld.prototype.createPalette = function () {
@@ -391,6 +402,7 @@ MicroWorld.prototype.hideMakeBlockButtons = function () {
 
 MicroWorld.prototype.hideSearchButton = function () {
     this.hidePaletteButtons('searchBlocks');
+    this.suppressKeyEvent('ctrl f');
 };
 
 MicroWorld.prototype.hidePaletteButtons = function (selector) {
@@ -466,3 +478,7 @@ MicroWorld.prototype.showSpriteCorral = function () {
     this.ide.corral.show();
     this.ide.corralBar.show();
 };
+
+MicroWorld.prototype.suppressKeyEvent = function(key){
+    this.suppressedKeyEvents.push(key);
+}
