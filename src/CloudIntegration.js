@@ -999,7 +999,22 @@ ProjectDialogMorph.prototype.renderList = function(){
 ProjectDialogMorph.prototype.openCloudIntegrationProject = function (proj) {
     var cloudConnectionKey = this.source.split(':')[1];
     var cloudConnection = this.ide.cloudConnections[cloudConnectionKey];
-    var msg = this.ide.showMessage('Loading project\nfrom '+cloudConnection.label);
+    this.ide.backup(
+        () => {
+            this.ide.nextSteps([
+                () => this.rawOpenCloudIntegrationProject(proj)
+            ]);
+        },
+        'Replace the current project with a new one?',
+        'New Project'
+    );
+
+}
+
+ProjectDialogMorph.prototype.rawOpenCloudIntegrationProject = function (proj) {
+    var cloudConnectionKey = this.source.split(':')[1];
+    var cloudConnection = this.ide.cloudConnections[cloudConnectionKey];
+    var msg = this.ide.showMessage('Fetching project\nfrom '+cloudConnection.label);
     cloudConnection.downloadFile(proj.id).then((src)=>{
         location.hash = '';
         location.hash = '#cloud-integration-present:Source=' +
@@ -1035,6 +1050,11 @@ ProjectDialogMorph.prototype.openProject = function () {
         // Note "file" is a property of the parseResourceFile function.
         src = this.ide.getURL(this.ide.resourceURL('Examples', proj.fileName));
         this.ide.openProjectString(src);
+        this.ide.backup(
+            () => this.ide.openProjectString(src),
+            'Replace the current project with a new one?',
+            'New Project'
+        );
         this.destroy();
         // @new
     } else if (this.source.indexOf('cloud-integration')>-1){
@@ -1042,6 +1062,11 @@ ProjectDialogMorph.prototype.openProject = function () {
     } else { // 'local'
         this.ide.source = null;
         this.ide.openProject(proj.name);
+        this.ide.backup(
+            () => this.ide.openProject(proj.name),
+            'Replace the current project with a new one?',
+            'New Project'
+        );
         this.destroy();
     }
 };
