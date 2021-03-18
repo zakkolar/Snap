@@ -3,8 +3,567 @@
 ## in development:
 
 * **Notable Fixes:**
-    * fixed a costume-shrinkWrap edgecase bug, thanks, Brian, for reporting it!
+    * repeat stops when encountering a non-numerical counter input, thanks, Stefan!
+    * updated list-utilities library, thanks, Brian!
 
+### 2021-03-17
+* new dev version
+* threads fixed repeat for non-numbers, thanks Stefan!
+* updated list-utilities library, thanks, Brian!
+
+## 6.7.2
+* **Notable Changes:**
+    * disabled empty-slot implicit parameter in FOREACH
+* **Notable Fixes:**
+    * fixed "transpose" in the APL library, thanks, Brian!
+* **Translation Updates:**
+    * Catalan, thanks, Joan!
+
+### 2021-03-15
+* new dev version
+* Catalan translation update, thanks, Joan!
+* lists, apl: fixed "transpose", thanks, Brian!
+* threads: disabled empty-slot implicit parameter in FOREACH
+* prepared patch release
+
+## 6.7.1
+* **Notable Fixes:**
+    * fixed recursive calls in PIPE
+    * the "length of list" block no longer appears twice in search results
+    * prevent inserting items at non-integer / out-of-bounds indices
+    * save all items of a heterogeneously structured linked/arrayed list
+
+### 2021-03-09
+* new dev version
+* objects: fixed #2797
+* fixed recursive calls in PIPE
+* lists: prevent usage of lists as dictionaries
+* store: fixed #2798
+* prepared patch
+
+## 6.7.0
+* **New Features:**
+    * undelete sprites
+* **Notable Changes:**
+    * optimized special cases for COMBINE (sum, product, min, max) by up to 34 x
+    *  rebind (relabel) recursive calls when duplicating a custom block definition 
+    * custom block label parts inside the prototype (in the block editor) are now displayed the same as in block instances
+    * variadic ring inputs are now arranged vertically (e.g. the reporter rings in PIPE)
+    * changed zebra-coloring for yellow custom block prototypes (in the block editor) so the hat block changes the shade, not the prototype
+    * improved layout and rendering of (+) buttons in custom block prototypes
+    * updated libraries: list utilities, variadic reporters, iteration-composition, colors and APL, thanks, Brian!
+* **Notable Fixes:**
+    * displaying a table containing the stage no longer crashes the page
+    * correct identities when combining the items of an empty list with + /  * / min / max
+* **Documentation Updates:**
+    * updated manual, thanks Brian!
+* **Translation Updates:**
+    * German
+
+### 2021-03-08
+* prepared minor release
+
+### 2021-03-06
+* updated libraries and manual, thanks, Brian!
+
+### 2021-03-05
+* tables, objects: displaying a table containing the stage no longer crashes the page
+* gui: added "trash is empty" information, commented out for now
+* gui: changed gui strings for undelete feature
+* updated German translation
+* byob: rebind (relabel) recursive calls when duplicating a custom block definition 
+
+### 2021-03-04
+* gui: added trash button for undeleting sprites
+* gui: accept drops of sprites and sprite-icons in trash button
+* gui: animate undeleted sprites to glide back onstage
+
+### 2021-03-03
+* symbols: added "trash" symbol
+* symbols: added "trashFull" symbol
+
+### 2021-03-02
+* threads: optimized special cases for COMBINE (sum, product, min, max) by up to 34 x
+* threads: optimized special cases for compiled version of COMBINE
+* gui, objects: undelete sprites 
+* threads: correct identities when combining the items of an empty list with + /  * / min / max
+* gui: pushed dev version to 6.7 because of new documentable features
+
+### 2021-03-01
+* byob: improved layout and rendering of (+) buttons in custom block prototypes
+* byob: display custom block label parts in the prototype (in the block editor) the same as in block instances
+* byob: changed zebra-coloring for yellow custom block prototypes (in the block editor) so the hat block changes the shade, not the prototype
+
+### 2021-02-27
+* new dev version
+* blocks: arrange variadic ring inputs vertically (e.g. the reporter rings in PIPE)
+* blocks: removed a redundant unused case for block highlights 
+
+## 6.6.0
+* **New Features:**
+    * new "reshape" primitive for lists
+    * list operations as dropdown menu of new "length of list" block
+* **Notable Changes:**
+    * 2D lists inside ITEM OF now have the right order of dimensions (rows, columns, planes, etc.)
+    * changed "length of list" to become a general list operations primitive
+    * enhanced MIN and MAX to also operate on text
+    * added "is _ identical to _ ?" to relabel options of equals
+    * enabled scientific notation in numeric text fields
+    * removed experimental "transpose (list)" primitive - has been merged into "length of list"
+    * removed "reverse" block from the "frequency distribution analysis" library
+* **Notable Fixes:**
+    * don't show internal "compile" reporter in search results
+    * fixed a bug for showing the senders of a message
+    * compiled "find first" now also reports empty instead of false if none is found
+    * support one level of currying in the experimental JS JIT compiler
+* **Documentation Updates:**
+    * updated manual with hyper-semantics of ITEM OF, thanks Brian!
+* **Translation Updates:**
+    * German
+
+### 2021-02-25
+* updated manual, thanks, Brian!
+* prepared minor release
+
+### 2021-02-23
+* threads, objects: commented out experimental slice() primitive
+
+### 2021-02-20
+* lists: removed experimental list.slice() feature from production code
+* threads, objects: experimental list slice() primitive, hidden, available via find / relabel
+
+### 2021-02-16
+* objects: reverted list palette reordering
+
+### 2021-02-15
+* threads: fixed #2783
+* threads: fixed #2784
+* blocks: took out "transpose" from "length" dropdown
+* German translation update
+* removed "reverse" block from the "frequency distribution analysis" library
+* support for ranges of indices using zero and negative numbers inside index-lists in "item of"
+
+### 2021-02-14
+* lists: fixed transcription typos in strideTranspose(), thanks, Brian!
+
+### 2021-02-13
+* blocks, threads, lists: distinguish between "columns" (<3D) and (deep) "transpose"
+* byob: fixed a bug for showing the senders of a message
+
+### 2021-02-12
+* blocks, threads, lists: distinguish between "transpose" (<3D) and "deep transpose"
+
+### 2021-02-11
+* objects: rearranged the blocks in the lists category palette
+* lists: fixed list.reverse() to return a shallow copy instead of mutating the original
+
+### 2021-02-10
+* objects: added "is _ identical to _ ?" to relabel options of equals
+* morphic: enable scientific notation in numeric text fields
+* threads: changed error message for "lines" conversion
+* updated German translations
+
+### 2021-02-09
+* lists: refactored matrix ops to avoid JS stack overflows
+* objects: fixed internal migration for "transpose" block
+* threads: enhanced MIN and MAX to also operate on text
+* threads: enhanced list attributes 'rank', 'shape' and 'ravel' to also handle scalars
+* threads: enhanced 'reshape' to also handle scalars
+* lists: limit crash-dangerous matrix-exploding ops to 1 MM elements (reshape, crossproduct)
+* objects, threads: took out "crossproduct" primitive option from the palette
+* objects, blocks: added defaults to RESHAPE in palette
+
+### 2021-02-08
+* lists, objects, threads: new RESHAPE primitive
+* lists: added internal naive (recursive)  version of CROSSPRODUCT
+* lists: added TRANSPOSE for higher dimensions, thanks, Brian!
+* objects, blocks, threads: added "cross product" to "append" as dropdown, and "reverse" to "length"
+
+### 2021-02-06
+* simplified private list.range() method
+* blocks: changed wordings for list attributes
+
+### 2021-02-05
+* new manual for v6.6, thanks, Brian!
+* objects: don't show internal "compile" reporter in search results
+* blocks, objects, threads: added experimental "atribute of list" reporter primitive to dev mode
+* objects: replaced "length of list" primitive with new "attribute of list" reporter
+* objects: added "txt" option to list attribure dropdown - not yet operational
+* lists, threads: added "txt" list conversion
+
+### 2021-02-04
+* lists, threads: changed query semantics for table selectors in ITEM OF to rows, columns, planes, etc.
+* pushed dev version number
+* lists: tweaked query()
+* cloud: trimmed usernames, thanks, Michael
+
+### 2021-02-03
+* new dev version
+
+## 6.5.2
+* **Notable Changes:**
+    * identity comparison of texts is now case-sensitive
+    * hyperized image attribute reporter primitive (monadic)
+    * when constructing a costume from a pixel list handle single values as greyscale
+    * experimental "transpose (list)" primitive relabelling option for "all but first"
+    * renamed "Obsolete!" blocks to "Undefined!"
+* **Notable Fixes:**
+    * fixed a glitch in the animation library's "sine in-out" easing function 
+    * fixed a postMessage glitch in the API, thanks, Bernat!
+    * fixed a glitch in the Turkish translation that broke the "Looks" blocks category
+    * fixed a glitch that prevented the text cursor from displaying instantly in certain situations
+    * fixed importing exported reporter-scripts (experimental feature)
+* **Translation Updates:**
+    * Tamil, thanks, Barthdry!
+    * German
+    * Turkish
+
+### 2021-02-02
+* lists: added a few internal - as of now unused - matrix operations
+* lists, threads: refactored hyper list access
+* prepared patch
+
+### 2021-02-01
+* lists: refactored some matrix operations
+* threads: made identity comparison of texts case-sensitive
+* blocks, gui: fixed importing exported reporter-scripts (experimental feature)
+
+### 2021-01-30
+* threads, objects, lists: renamed experimental "rotate" primitive into "transpose"
+* objects: added "transpose" to palette for testing
+* updated German translation for "transpose"
+* morphic: fixed #2768
+* objects: removed "transpose" from the palette for now
+
+### 2021-01-29
+* threads, objects: new experimental "rotate (list)" primitive relabelling option for "all but first"
+* threads, objects: removed previous experimental "column" and "width" primitives again
+* lists, threads, objects refactored experimental "rotate" primitive
+* updated German translation
+* added more relabelling options for "rotate"
+
+### 2021-01-27
+* threads: hyperized new experimental "column" primitive
+
+### 2021-01-26
+* threads: handle single values as greyscale when constructing a costume from a pixel list
+* threads, objects experimental "column _ of _" reporter relabelling option for "item _ of _"
+* threads, objects experimental "width of _" reporter relabelling option for "length of _"
+* updated German translation (with experimental block specs)
+* fixed an input slot spec glitch in the Turkish translation 
+* store: renamed "Obsolete!" blocks to "Undefined!"
+
+### 2021-01-25
+* threads: hyperized image attribute reporter primitive (monadic)
+* pulled pending PRs
+
+### 2021-01-21
+* new dev version
+* animation library: fixed a glitch in the "sine in-out" easing function 
+
+## 6.5.1
+* **New Features:**
+    * experimental (non-hyperized) "not equals" primitive reachable via "relabel"
+* **Notable Changes:**
+    * 10% speed-up for reporters, WARP and TURBO
+    * updated list utilities library, thanks, Brian!
+* **Notable Fixes:**
+    * fixed a bug when changing a Boolean input slot with a default value to numerical type 
+* **Documentation Updates:**
+    * Snap! Manual sources and compiling documentation, thanks, Brian!
+    * updated "contentWindows" part of the Snap! API, thanks, Bernat
+* **Translation Updates:**
+    * Dutch, thanks, Joek!
+
+### 2021-01-11
+* prepared patch
+
+### 2021-01-08
+* updated Snap! Manual and manual compiling documentation, thanks, Brian!
+
+### 2021-01-07
+* updated Snap! API documentation, thanks, Bernat!
+
+### 2021-01-05
+* widgets: fixed a conversion bug when retrieving a numerical value from an input field
+* objects, threads: experimental (non-hyperized) "not equals" primitive reachable via "relabel"
+* Dutch translation update, thanks, Joek!
+* updated list utilities library, thanks, Brian!
+
+### 2021-01-04
+* new dev version
+* threads: optimized frame stepper, reduced frames for input evaluation, 10 % speed-up for reporters, WARP and TURBO
+
+## 6.5.0
+* **New Features:**
+    * warning about "unsaved changes" when opening or creating a new project
+    * visual indication of unsaved changes in the IDE's project label
+    * automatic backup of unsaved changes to localstore, option to restore in the file menu until the first change in the new project
+* **Notable Changes:**
+    * 25% speed-up for reporters, WARP and TURBO
+    * up to 40x speed-up for "new costume from list" reporter primitive 
+    * re-enabled reporter drops in "key _ pressed?" input slot
+* **Notable Fixes:**
+    * fixed a bug in hyperblocks
+    * fixed keyboard formula entry for subtraction
+* **Documentation Updates:**
+    * new Manual for v6.5, thanks, Brian!
+    * added unsavedChanges() method and documentation to the Snap! API
+* **Translation Updates:**
+    * German
+    * Catalan, thanks, Joan!
+    * Russian, thanks, Pavel!
+
+### 2020-12-23
+* Manual updated, thanks, Brian!
+* prepared release
+
+### 2020-12-22
+* threads: up to 40x speed-up for "new costume from list" reporter primitive 
+* api: added unsavedChanges() method and documentation
+* blocks, gui: visual indication of unsaved changes in the IDE's project label
+* Russian translation update, thanks, Pavel!
+
+### 2020-12-21
+* gui: tweaked backup / restore
+* new Manual for v6.5, thanks, Brian!
+* German translation update
+
+### 2020-12-20
+* gui, blocks, objects: keep track of unsaved edits
+
+### 2020-12-19
+* threads: added code-documentation for the WARP/timestamp optimization
+* gui: new auto-backup to localstore feature 
+
+### 2020-12-18
+* threads: optimized scheduler, reduced system calls to Date.now(), 25 % speed-up for reporters, WARP and TURBO
+* threads: fixed a typo in hyperDyadic()
+
+### 2020-12-17
+* blocks: added hook for caching variadic inputs
+* blocks: refactored blockSequence() non-recursively
+* reverted variadic input caching experiment
+
+### 2020-12-16
+* threads, objects: added dev debugging hook for counting yields
+
+### 2020-12-14
+* new dev version
+* objects: fixed keyboard formula entry for subtraction
+* blocks: re-enabled reporter drops in "key _ pressed?" input slot
+
+## 6.4.1
+* **Documentation Updates:**
+    * new Manual for v6.4, thanks, Brian!
+* **Notable Fixes:**
+    * fixed zebra coloring for imported scripts
+
+### 2020-12-14
+* new dev version
+* new Manual for v6.4, thanks, Brian!
+* gui fixed zebra coloring for imported scripts
+* prepared patch
+
+## 6.4.0
+* **New Features:**
+    * ray casting: new "ray length" option in the "relation TO object" primitive
+    * hyperdyadic MIN and MAX primitives reachable via "relabel"
+    * hyperdyadic less / great than or equals primitives reachable via "relabel"
+    * hyperdyadic ATAN2 primitive reachable via "relabel"
+    * new SIGN function in arithmetic dropdown
+* **Notable Changes:**
+    * searching for blocks and keyboard entry now includes the contents of dropdown menus
+    * disabled dropping reporters into certain dropdowns (monadic functions, types, costume attributes, graphic effects, layers, audio attributes, pen attributes, dates, relation, keys, video attributes)
+    * changed VIDEO _ ON _ reporter primitive to be hyper-monadic (second slot)
+    * hyperized OBJECT reporter primitive in sensing 
+* **Notable Fixes:**
+    * keep internal linked-list organization intact for hyperblocks
+    * improved SVG loading in Firefox, thanks, Joan!
+    * prevent browser override for ctrl+o gesture
+    * fixed layout issue when importing a sprite in presentation mode
+* **Translation Updates:**
+    * Spanish, thanks, Joan!
+    * Catalan, thanks, Joan!
+    * Tamil, thanks, Barthdry!
+    * German
+
+### 2020-12-11
+* blocks: fixed special drop-downs for keyboard entry
+* store: fixed layout issue when importing a sprite in presentation mode
+* prepared minor release
+
+### 2020-12-09
+* Tamil translation update, thanks, Barthdry!
+* threads, objects: added hyperdyadic ATAN2 primitive reachable via "relabel"
+* threads: hyperized OBJECT reporter primitive in sensing 
+
+### 2020-12-07
+* GUI: improved SVG loading, thanks, Joan!
+* threads, objects, blocks: compiled multimap, thanks, Brian
+* reverted multimap, let's use a JS-block based custom block to engineer it first
+
+### 2020-12-05
+* objects: alternative collision detection method using the video-cache, commented out for reference.
+* German translation update for "ray length"  
+
+### 2020-12-04
+* threads: refactored raycasting
+* integrated raycasting into "relation TO object" primitive
+
+### 2020-12-03
+* threads: raycasting edge detection, under construction
+
+### 2020-12-02
+* threads, blocks: added SIGN function to monadic dropdown
+* Catalan translation update, thanks, Joan!
+* Morphic: prevent browser override for ctrl+o gesture
+* objects, threads: refactored mouseX / mouseY to use generic coordinate conversion
+
+### 2020-12-01
+* threads, objects: added hyperdyadic MIN and MAX primitives reachable via "relabel"
+* threads, objects: added hyperdyadic less/greaterThanOrEquals prims 
+* blocks: made monadic functions and data types menus static
+* blocks: made costume attribute, graphic effects and layers menus static
+* blocks: made audio attributes menu static
+* blocks: made pen attributes menus static
+* blocks: made sensing attributes menus largely static
+* threads: changed reportVideo() to be hyper-monadic
+* lists: made sure map() doesn't mutate internal list linked-ness
+
+### 2020-11-30
+* threads: keep internal linked-list organization intact for hyperblocks
+* update libraries
+
+### 2020-11-27
+* objects: extended block-search to include dropdown choices in primitives
+* byob, objects: extended block-search to include dropdown choices in custom blocks
+
+### 2020-11-26
+* blocks, objects: refactored input slot specs
+* blocks: refactored special input slot dop-down menus for search
+
+### 2020-11-23
+* new dev version
+
+## 6.3.7
+* **Notable Changes:**
+    * added "loadProjectXML" method to the api
+    * hyperized "atrribute OF sprite" reporter primitive in the sensing category
+    * show the common attributes for sprites in the OF-dropdown by default
+    * hyperized "color/sprite AT location" reporter primitive
+    * hyperized "VIDEO _ ON _" reporter primitive
+* **Documentation Updates:**
+    * API update for "loadProjectXML"
+* **Notable Fixes:**
+    * fixed display of inherited sprite-local variables
+* **Translation Updates:**
+    * Greek, thanks, HM100!
+
+### 2020-11-23
+* Greek translation update, thanks, HM100!
+* prepared patch
+
+### 2020-11-22
+* objects: fixed display of inherited sprite-local variables
+* threads: make sure video capture is turned on before accessing it programmatically 
+
+### 2020-11-21
+* new dev version
+* api: new loadProjectXML() method
+* updated api documentation
+* threads: hyperized "atrribute OF sprite" reporter primitive
+* blocks: show the common attributes for sprites in the OF-dropdown by default
+* threads: hyperized "color/sprite AT location" reporter primitive
+* threads: hyperized "VIDEO _ ON _" reporter primitive
+
+## 6.3.6
+* **Notable Changes:**
+    * changed determining "neighbors" from rectangular to circular perimeter
+* **Notable Fixes:**
+    * fixed a loading bug for projects with watchers on SVG costumes
+    * fixed stretching SVG costumes with fixed aspect ratios in Firefox
+    * only report neighbors that are visible
+* **Translation Updates:**
+    * Italian, thanks, Stefano!
+    * Spanish, thanks, Joan!
+
+### 2020-11-20
+* threads: only report neighbors that are visible, thanks Frederic, for reporting this bug!
+* Italian translation update, thanks, Stefano!
+* Spanish translation update, thanks, Joan!
+* threads, objects: changed determining "neighbors" from rectangular to circular perimeter
+* objects: fixed a loading bug for projects with watchers on SVG costumes
+* prepared patch
+
+### 2020-11-19
+* new dev version
+* objects: rasterize SVGs internally before stretching them, so it all works on Firefox
+
+## 6.3.5
+* **Notable Fixes:**
+    * support exported SVGs to be edited in Inkscape
+
+### 2020-11-19
+* new dev version
+* objects: tweaked exported SVG's color alpha part as stroke-opacity so Inkscape can handle them, sigh.
+* prepared patch
+
+## 6.3.4
+* **Notable Changes:**
+    * added "postMessage" mechanism to the api for communicating with Snap! inside an iFrame, thanks, Bernat!
+* **Documentation Updates:**
+    * API update for "postMessage", thanks, Bernat!
+* **Notable Fixes:**
+    * fixed updating cells showing sprites or costumes inside list watchers
+    * fixed a project loading bug (for watchers showing costumes)
+
+### 2020-11-18
+* new dev version
+* objects: fixed updating cells showing sprites or costumes inside list watchers
+* objects: fixed a project loading bug (for watchers showing costumes)
+* api: new postMessage mechanism, thanks, Bernat!
+* prepared patch
+
+## 6.3.3
+* **Notable Changes:**
+    * added type assertion for numerical value in CHANGE VARIABLE BY NUM block, thanks, Eckart, for the suggestion
+* **Notable Fixes:**
+    * fixed a costume fitting issue, thanks, Joan!
+    * fixed keyboard formula input for "power of", "neg", "lg" and "id"
+    * fixed repositioning sprite after "editRotationPointOnly"
+* **Translation Updates:**
+    * Spanish, thanks, Joan!
+
+### 2020-11-1/
+* blocks, objects: refactored and unified default values for block templates
+* Spanish translation update, thanks, Joan!
+* gui, objects: fixed #2715 - reposition sprite after "editRotationPointOnly"
+* prepared patch
+
+### 2020-11-15
+* new dev version
+* objects: fixed costume fitting, thanks, Joan!
+* objects: fixed keyboard formula input for "power of"
+* objects: fixed keyboard formula input for "neg"
+* objects: fixed keyboard formula input for "lg" and "id"
+* threads: added type assertion for numerical value in CHANGE VARIABLE BY NUM block
+
+## 6.3.2
+* **Notable Changes:**
+    * added meaningful defaults to blocks in the palette that didn't already have them
+* **Notable Fixes:**
+    * fixed a costume-shrinkWrap edgecase bug, thanks, Brian, for reporting it!
+    * fixed dynamic costume-inheritance for PASTE and CUT
+    * fixed being unable to place the cursor at the end of a multi-line text
+
+### 2020-11-12
+* morphic: fixed being unable to place the cursor at the end of a multi-line text
+* prepared patch
+
+### 2020-11-11
+* objects: added meaningful defaults to blocks in the palette that didn't already have them
+* threads: fixed dynamic costume-inheritance for PASTE and CUT
 
 ### 2020-11-09
 * new dev version

@@ -6,7 +6,7 @@
 
     written by Jens Mönig
 
-    Copyright (C) 2020 by Jens Mönig
+    Copyright (C) 2021 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -185,7 +185,7 @@ SnapTranslator.dict.de = {
     'translator_e-mail':
         'jens@moenig.org, jadga.huegle@sap.com', // optional
     'last_changed':
-        '2020-11-02', // this, too, will appear in the Translators tab
+        '2021-03-05', // this, too, will appear in the Translators tab
 
     // GUI
     // control bar:
@@ -623,6 +623,8 @@ SnapTranslator.dict.de = {
         '%rel zu %dst',
     'distance':
     	'Entfernung',
+    'ray length':
+        'Strahlenlänge',
     '%asp at %loc' :
         '%asp bei %loc',
     'r-g-b-a':
@@ -795,8 +797,20 @@ SnapTranslator.dict.de = {
         'Element %idx von %l',
     'all but first of %l':
         'alles au\u00dfer dem ersten von %l',
-    'length of %l':
-        'L\u00e4nge von %l',
+    '%la of %l':
+        '%la von %l',
+    'rank':
+        'Rang',
+    'dimensions':
+        'Dimensionen',
+    'flatten':
+        'Auflistung',
+    'columns':
+        'Spalten',
+    'reverse':
+        'Umkehrung',
+    'lines':
+        'Textzeilen',
     '%l contains %s':
         '%l enth\u00e4lt %s',
     'thing':
@@ -831,6 +845,8 @@ SnapTranslator.dict.de = {
         'Index',
     'append %lists':
         'verbinde %lists',
+    'reshape %l to %nums':
+        'strukturiere %l in %nums',
     'add %s to %l':
         'f\u00fcge %s zu %l hinzu',
     'delete %ida of %l':
@@ -931,6 +947,12 @@ SnapTranslator.dict.de = {
         'Kostüm aus der Medienbibliothek auswählen',
     'Select a sound from the media library':
         'Klang aus der Medienbibliothek auswählen',
+    'Undelete sprites...':
+        'Objekte wiederherstellen...',
+    'Bring back deleted sprites':
+        'Gelöschte Objekte zurückholen',
+    'trash is empty':
+        'der Mülleimer ist leer',
 
     //Libraries
     'Import library':
@@ -1501,8 +1523,12 @@ SnapTranslator.dict.de = {
     // new project
     'New Project':
         'Neues Projekt',
+    'Unsaved Changes!':
+        'Ungespeicherte Änderungen!',
     'Replace the current project with a new one?':
         'Das aktuelle Projekt durch ein neues ersetzen?',
+    'Backup failed.\nThis cannot be undone, proceed anyway?':
+        'Backup nicht möglich.\nTrotzdem fortfahren?',
 
     // save project
     'Save Project As...':

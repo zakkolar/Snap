@@ -9,7 +9,7 @@
     written by Jens Mönig
     jens@moenig.org
 
-    Copyright (C) 2020 by Jens Mönig
+    Copyright (C) 2021 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -55,14 +55,13 @@
         InputSlotDialogMorph
         VariableDialogMorph
 
+    Morph*
+        BlockLabelFragmentMorph
+        BlockLabelPlaceHolderMorph
+
     ReporterBlockMorph***
         CustomReporterBlockMorph
         JaggedBlockMorph
-
-
-    StringMorph*
-        BlockLabelFragmentMorph
-        BlockLabelPlaceHolderMorph
 
     TemplateSlotMorph***
         BlockInputFragmentMorph
@@ -95,19 +94,19 @@
 
 */
 
-/*global modules, CommandBlockMorph, SpriteMorph, TemplateSlotMorph, Map,
-StringMorph, Color, DialogBoxMorph, ScriptsMorph, ScrollFrameMorph, WHITE,
-Point, HandleMorph, HatBlockMorph, BlockMorph, detect, List, Process,
+/*global modules, CommandBlockMorph, SpriteMorph, TemplateSlotMorph, Map, Morph,
+StringMorph, Color, DialogBoxMorph, ScriptsMorph, ScrollFrameMorph, WHITE, copy,
+Point, HandleMorph, HatBlockMorph, BlockMorph, detect, List, Process, isString,
 AlignmentMorph, ToggleMorph, InputFieldMorph, ReporterBlockMorph, StringMorph,
 nop, radians, BoxMorph, ArrowMorph, PushButtonMorph, contains, InputSlotMorph,
-ToggleButtonMorph, IDE_Morph, MenuMorph, copy, ToggleElementMorph, fontHeight,
-StageMorph, SyntaxElementMorph, CommentMorph, localize, CSlotMorph,
-MorphicPreferences, SymbolMorph, isNil, CursorMorph, VariableFrame,
-WatcherMorph, Variable, BooleanSlotMorph, XML_Serializer, SnapTranslator*/
+ToggleButtonMorph, IDE_Morph, MenuMorph, ToggleElementMorph, fontHeight, isNil,
+StageMorph, SyntaxElementMorph, CommentMorph, localize, CSlotMorph, Variable,
+MorphicPreferences, SymbolMorph, CursorMorph, VariableFrame, BooleanSlotMorph,
+WatcherMorph, XML_Serializer, SnapTranslator*/
 
 // Global stuff ////////////////////////////////////////////////////////
 
-modules.byob = '2020-October-07';
+modules.byob = '2021-March-05';
 
 // Declarations
 
@@ -371,6 +370,32 @@ CustomBlockDefinition.prototype.parseChoices = function (string) {
     return dict;
 };
 
+CustomBlockDefinition.prototype.menuSearchWords = function () {
+    // return a single string containing words that can be searched for
+    // inside my dropdown menus
+    var terms = [];
+    this.inputNames().forEach(slot => {
+        var menu = this.dropDownMenuOf(slot);
+        if (menu) {
+            if (isString(menu)) { // special menu, translates its values
+                menu = InputSlotMorph.prototype[menu](true);
+                terms.push(
+                    Object.values(menu).map(entry => {
+                        if (isNil(entry)) {return ''; }
+                        if (entry instanceof Array) {
+                            return localize(entry[0]);
+                        }
+                        return entry.toString();
+                    }).join(' ')
+                );
+            } else { // assume a dictionary, take its keys
+                terms.push(Object.keys(menu).join(' '));
+            }
+        }
+    });
+    return terms.join(' ').toLowerCase();
+};
+
 CustomBlockDefinition.prototype.isReadOnlyInput = function (inputName) {
     return this.declarations.has(inputName) &&
         this.declarations.get(inputName)[3] === true;
@@ -591,7 +616,9 @@ CustomBlockDefinition.prototype.collectDependencies = function (
 CustomBlockDefinition.prototype.isSending = function (message, receiverName) {
     return this.scripts.concat(
         this.body ? [this.body.expression] : []
-    ).some(script => script.isSending(message, receiverName));
+    ).some(script => script instanceof BlockMorph &&
+        script.isSending(message, receiverName)
+    );
 };
 
 // CustomCommandBlockMorph /////////////////////////////////////////////
@@ -980,25 +1007,17 @@ CustomCommandBlockMorph.prototype.edit = function () {
 };
 
 CustomCommandBlockMorph.prototype.labelPart = function (spec) {
-    var part;
-
     if (!this.isPrototype) {
         return CustomCommandBlockMorph.uber.labelPart.call(this, spec);
     }
     if ((spec[0] === '%') && (spec.length > 1)) {
-        // part = new BlockInputFragmentMorph(spec.slice(1));
-        part = new BlockInputFragmentMorph(spec.replace(/%/g, ''));
-    } else {
-        part = new BlockLabelFragmentMorph(spec);
-        part.fontSize = this.fontSize;
-        part.color = WHITE;
-        part.isBold = true;
-        part.shadowColor = this.color.darker(this.labelContrast);
-        part.shadowOffset = this.embossing;
-        part.fixLayout();
-        part.rerender();
+        // return new BlockInputFragmentMorph(spec.slice(1));
+        return new BlockInputFragmentMorph(spec.replace(/%/g, ''));
     }
-    return part;
+    return new BlockLabelFragmentMorph(
+        spec,
+        CustomCommandBlockMorph.uber.labelPart.call(this, spec)
+    );
 };
 
 CustomCommandBlockMorph.prototype.placeHolder = function () {
@@ -1236,8 +1255,18 @@ CustomCommandBlockMorph.prototype.duplicateBlockDefinition = function () {
         def = this.isGlobal ? this.definition : rcvr.getMethod(this.blockSpec),
         dup = def.copyAndBindTo(rcvr),
         spec = dup.spec,
+        exp = dup.body.expression,
         count = 1;
-    
+
+    function rebindRecursiveCalls(topBlock) {
+        topBlock.forAllChildren(morph => {
+            if (morph.definition === def) {
+                morph.definition = dup;
+                morph.refresh();
+            }
+        });
+    }
+
     if (this.isGlobal) {
         ide.stage.globalBlocks.push(dup);
     } else {
@@ -1250,8 +1279,16 @@ CustomCommandBlockMorph.prototype.duplicateBlockDefinition = function () {
         dup.spec = spec + ' (' + count + ')';
     }
 
+    // rebind recursive calls
+    dup.scripts.forEach(script => rebindRecursiveCalls(script));
+    if (exp instanceof BlockMorph) {
+        rebindRecursiveCalls(exp);
+    }
+ 
+
     ide.flushPaletteCache();
     ide.refreshPalette();
+    ide.recordUnsavedChanges();
     new BlockEditorMorph(dup, rcvr).popUp();
 };
 
@@ -1292,6 +1329,7 @@ CustomCommandBlockMorph.prototype.deleteBlockDefinition = function () {
             if (ide) {
                 ide.flushPaletteCache();
                 ide.refreshPalette();
+                ide.recordUnsavedChanges();
             }
         },
         this
@@ -1324,6 +1362,9 @@ CustomCommandBlockMorph.prototype.relabel = function (alternatives) {
             () => {
                 this.definition = def;
                 this.refresh();
+                this.scriptTarget().parentThatIsA(
+                    IDE_Morph
+                ).recordUnsavedChanges();
             }
         );
     });
@@ -2134,7 +2175,6 @@ BlockEditorMorph.prototype.init = function (definition, target) {
         );
     }
     scripts.add(proto);
-    proto.fixBlockColor(null, true);
 
     this.definition.scripts.forEach(element => {
         block = element.fullCopy();
@@ -2172,7 +2212,8 @@ BlockEditorMorph.prototype.init = function (definition, target) {
 
     block = proto.parts()[0];
     block.forceNormalColoring();
-    block.fixBlockColor(proto, true);
+    proto.fixBlockColor(null, true);
+
 };
 
 BlockEditorMorph.prototype.popUp = function () {
@@ -2757,50 +2798,50 @@ BlockLabelFragment.prototype.setSingleInputType = function (type) {
     to edit my contents and to turn me into an input placeholder.
 */
 
-// BlockLabelFragmentMorph inherits from StringMorph:
+// BlockLabelFragmentMorph inherits from Morph:
 
-BlockLabelFragmentMorph.prototype = new StringMorph();
+BlockLabelFragmentMorph.prototype = new Morph();
 BlockLabelFragmentMorph.prototype.constructor = BlockLabelFragmentMorph;
-BlockLabelFragmentMorph.uber = StringMorph.prototype;
+BlockLabelFragmentMorph.uber = Morph.prototype;
 
 // BlockLabelFragmentMorph instance creation:
 
-function BlockLabelFragmentMorph(text) {
-    this.init(text);
+function BlockLabelFragmentMorph(spec, shape) {
+    this.init(spec, shape);
 }
 
-BlockLabelFragmentMorph.prototype.init = function (text) {
-    this.fragment = new BlockLabelFragment(text);
+BlockLabelFragmentMorph.prototype.init = function (spec, shape) {
+    BlockLabelFragmentMorph.uber.init.call(this);
+    this.spec = spec;
+    this.fragment = new BlockLabelFragment(spec);
     this.fragment.type = null;
     this.sO = null; // temporary backup for shadowOffset
-    BlockLabelFragmentMorph.uber.init.call(
-        this,
-        text,
-        null, // font size
-        SyntaxElementMorph.prototype.labelFontStyle,
-        null, // bold
-        null, // italic
-        null, // numeric
-        null, // shadow offset
-        null, // shadow color
-        null, // color
-        SyntaxElementMorph.prototype.labelFontName
-    );
+    this.shape =  shape; // the actual label part, a StringMorph or SymbolMorph
+    this.add(shape);
+//    this.fixLayout();
 };
+
+BlockLabelFragmentMorph.prototype.fixLayout = function () {
+    this.bounds = this.shape.bounds;
+};
+
+BlockLabelFragmentMorph.prototype.render = nop;
 
 // BlockLabelFragmentMorph events:
 
 BlockLabelFragmentMorph.prototype.mouseEnter = function () {
-    this.sO = this.shadowOffset;
-    this.shadowOffset = this.sO.neg();
+    this.sO = this.shape.shadowOffset;
+    this.shape.shadowOffset = this.sO.neg();
+    this.shape.fixLayout();
+    this.shape.rerender();
     this.fixLayout();
-    this.rerender();
 };
 
 BlockLabelFragmentMorph.prototype.mouseLeave = function () {
-    this.shadowOffset = this.sO;
+    this.shape.shadowOffset = this.sO;
+    this.shape.fixLayout();
+    this.shape.rerender();
     this.fixLayout();
-    this.rerender();
 };
 
 BlockLabelFragmentMorph.prototype.mouseClickLeft = function () {
@@ -2821,7 +2862,7 @@ BlockLabelFragmentMorph.prototype.mouseClickLeft = function () {
         frag,
         null,
         () => this.updateBlockLabel(frag),
-        this,
+        this.spec,
         this.parent.definition.category
     ).open(
         this instanceof BlockLabelFragmentMorph ?
@@ -2847,11 +2888,11 @@ BlockLabelFragmentMorph.prototype.userMenu = function () {
     var symbolColor = new Color(100, 100, 130),
         menu = new MenuMorph(
             (string) => {
-                var tuple = this.text.split('-');
+                var tuple = this.spec.split('-');
                 this.changed();
                 tuple[0] = '$' + string;
                 this.text = tuple.join('-');
-                this.fragment.labelString = this.text;
+                this.fragment.labelString = this.spec;
                 this.parent.parent.changed();
                 this.fixLayout();
                 this.parent.parent.fixLayout();
@@ -2880,11 +2921,11 @@ BlockLabelFragmentMorph.prototype.userMenu = function () {
     circle. I can be clicked to add a new word or input to the prototype.
 */
 
-// BlockLabelPlaceHolderMorph inherits from StringMorph:
+// BlockLabelPlaceHolderMorph inherits from Morph:
 
-BlockLabelPlaceHolderMorph.prototype = new StringMorph();
+BlockLabelPlaceHolderMorph.prototype = new Morph();
 BlockLabelPlaceHolderMorph.prototype.constructor = BlockLabelPlaceHolderMorph;
-BlockLabelPlaceHolderMorph.uber = StringMorph.prototype;
+BlockLabelPlaceHolderMorph.uber = Morph.prototype;
 
 // BlockLabelPlaceHolderMorph preferences settings
 
@@ -2901,28 +2942,17 @@ BlockLabelPlaceHolderMorph.prototype.init = function () {
     this.fragment.type = '%s';
     this.fragment.isDeleted = true;
     this.isHighlighted = false;
-    this.isProtectedLabel = true; // doesn't participate in zebra coloring
-    BlockLabelFragmentMorph.uber.init.call(this, '+');
+    BlockLabelFragmentMorph.uber.init.call(this);
 };
 
 // BlockLabelPlaceHolderMorph drawing
 
 BlockLabelPlaceHolderMorph.prototype.fixLayout = function () {
-    // set my text contents depending on the "plainLabel" flag
-    if (this.plainLabel) {
-        this.text = this.isHighlighted ? ' + ' : '';
-    }
-
-    // determine my extent
-    this.measureCtx.font = this.font();
-    this.bounds.corner = this.bounds.origin.add(
-        new Point(
-            Math.max(
-                this.measureCtx.measureText(this.text).width,
-                SyntaxElementMorph.prototype.scale
-            ),
-            fontHeight(this.fontSize)
-        )
+    var h = fontHeight(SyntaxElementMorph.prototype.fontSize * 1.4);
+    this.bounds.setHeight(h);
+    this.bounds.setWidth(
+        this.isHighlighted || !this.plainLabel ? h / 2 :
+            SyntaxElementMorph.prototype.scale
     );
 
     // notify my parent of layout change - move to fixLayout()
@@ -2937,18 +2967,19 @@ BlockLabelPlaceHolderMorph.prototype.fixLayout = function () {
 };
 
 BlockLabelPlaceHolderMorph.prototype.render = function (ctx) {
-    var cx, cy;
+    var cx = this.width() / 2,
+        cy = this.height() / 2,
+        r = Math.min(cx, cy),
+        unit = SyntaxElementMorph.prototype.scale;
 
     // draw background, if any
     if (this.isHighlighted) {
-        cx = this.width() / 2;
-        cy = this.height() / 2;
         ctx.fillStyle = this.color.toString();
         ctx.beginPath();
         ctx.arc(
             cx,
-            cy * 1.2,
-            Math.min(cx, cy),
+            cy,
+            r,
             radians(0),
             radians(360),
             false
@@ -2957,14 +2988,16 @@ BlockLabelPlaceHolderMorph.prototype.render = function (ctx) {
         ctx.fill();
     }
 
-    // prepare context for drawing text
-    ctx.font = this.font();
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-
-    // now draw the actual text
-    ctx.fillStyle = this.isHighlighted ? 'white' : this.color.toString();
-    ctx.fillText(this.text, 0, fontHeight(this.fontSize));
+    if (!this.plainLabel || this.isHighlighted) {
+        ctx.strokeStyle = this.isHighlighted ? 'white' : this.color.toString();
+        ctx.lineWidth = unit;
+        ctx.beginPath();
+        ctx.moveTo(unit, cy);
+        ctx.lineTo(r * 2 - unit, cy);
+        ctx.moveTo(r, cy - r + unit);
+        ctx.lineTo(r, cy + r - unit);
+        ctx.stroke();
+    }
 };
 
 // BlockLabelPlaceHolderMorph events:

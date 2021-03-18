@@ -1,6 +1,6 @@
 # The Snap! API
 
-Jens Mönig, October 20, 2020
+Jens Mönig, Bernat Romagosa, January 07, 2021
 
 This document describes how Snap! can be accessed from an outside program to start scripts, send and retrieve information. The model use case is embedding interactive Snap! projects in other websites such as MOOCs or other adaptive learning platforms.
 
@@ -31,6 +31,8 @@ Currently the API consists of the following methods:
 #### Access the Serialized Project
 
 * IDE_Morph.prototype.getProjectXML()
+* IDE_Morph.prototype.loadProjectXML()
+* IDE_Morph.prototype.unsavedChanges()
 
 ## Referencing the IDE
 
@@ -61,6 +63,34 @@ The model case in mind is embedding Snap! in an iframe:
 In such a set up the ide can be accessed through the ```contentWindow``` property, e.g.
 
     var ide = document.getElementsByTagName("iframe")[0].contentWindow.world.children[0];
+
+### Cross-domain iframes
+
+If the iframe and the container do not share domains, you won't be able to reach the world
+and, thus, the API. For that particular case, you should use the `postMessage` mechanism,
+as follows:
+
+    document.querySelector('iframe').contentWindow.postMessage(
+        { selector: <API selector>, params: <param array> },
+        '*'
+    );
+
+For instance, to get the value of a variable named "foo", you would do:
+
+    document.querySelector('iframe').contentWindow.postMessage(
+        { selector: 'getVar', params: [ 'foo' ] },
+        '*'
+    );
+
+The way to capture the return values of these messages from the page containing the iframe
+is to define an `onmessage` listener:
+
+    winndow.addEventListener('message',function(e) {
+        console.log('the response to', e.data.selector, 'is', e.data.response);
+    },false);
+
+Note that `e.data.selector` carries the original selector back, so you can tie it to the
+request, while `e.data.response` carries the return value of the API method call.
 
 ## Interacting with the IDE
 
@@ -168,6 +198,31 @@ the getProjectXML() method returns a string in XML format representing the seria
 
 #### return value
 an XML String
+
+
+### IDE_Morph.prototype.loadProjectXML()
+the loadProjectXML() method replaces the current project of the IDE with another serialized one encoded in a string in XML format. Note that no user acknowledgement is required, all unsaved edits to the prior project are lost.
+
+#### syntax
+    ide.loadProjectXML(projectData);
+
+#### parameters
+* projectData
+    * XML string representing a serialized project
+    
+#### return value
+unefined
+
+
+### IDE_Morph.prototype.unsavedChanges()
+the unsavedChanges() method return a Boolean value indicating whether the currently edited project has been modifed since it was last saved.
+
+#### syntax
+    ide.unsavedChanges();
+    
+#### return value
+a Boolean
+
 
 ## Manipulating Lists
 

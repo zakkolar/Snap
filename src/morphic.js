@@ -8,7 +8,7 @@
     written by Jens Mönig
     jens@moenig.org
 
-    Copyright (C) 2010-2020 by Jens Mönig
+    Copyright (C) 2010-2021 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -1280,7 +1280,7 @@
 
 /*global window, HTMLCanvasElement, FileReader, Audio, FileList, Map*/
 
-var morphicVersion = '2020-November-02';
+var morphicVersion = '2021-February-10';
 var modules = {}; // keep track of additional loaded modules
 var useBlurredShadows = true;
 
@@ -5637,19 +5637,24 @@ CursorMorph.prototype.processInput = function (event) {
     // filter invalid chars for numeric fields
     function filterText (content) {
         var points = 0,
+            hasE = false,
             result = '',
             i, ch, valid;
         for (i = 0; i < content.length; i += 1) {
             ch = content.charAt(i);
             valid = (
                 ('0' <= ch && ch <= '9') || // digits
-                (i === 0 && ch === '-')  || // leading '-'
+                (ch.toLowerCase() === 'e') || // scientific notation
+                ((i === 0 || hasE) && ch === '-')  || // leading '-' or sc. not.
                 (ch === '.' && points === 0) // at most '.'
             );
             if (valid) {
                 result += ch;
                 if (ch === '.') {
                     points += 1;
+                }
+                if (ch.toLowerCase() === 'e') {
+                    hasE = true;
                 }
             }
         }
@@ -9438,7 +9443,7 @@ TextMorph.prototype.slotAt = function (aPoint) {
         charX = 0;
     }
     columnLength = this.lines[row - 1].length;
-    while (col < columnLength - 2 && aPoint.x - this.left() > charX) {
+    while (col < columnLength - 1 && aPoint.x - this.left() > charX) {
         charX += ctx.measureText(this.lines[row - 1][col]).width;
         col += 1;
     }
@@ -12039,7 +12044,7 @@ WorldMorph.prototype.initKeyboardHandler = function () {
             }
             // suppress cmd-d/f/i/p/s override
             if ((event.ctrlKey || event.metaKey) &&
-                    'dfips'.includes(event.key)) {
+                    'dfiops'.includes(event.key)) {
                 event.preventDefault();
             }
         },
@@ -12589,6 +12594,7 @@ WorldMorph.prototype.edit = function (aStringOrTextMorph) {
     this.cursor = new CursorMorph(aStringOrTextMorph, this.keyboardHandler);
     this.keyboardFocus = this.cursor;
     aStringOrTextMorph.parent.add(this.cursor);
+    this.cursor.rerender();
     if (MorphicPreferences.useSliderForInput) {
         if (!aStringOrTextMorph.parentThatIsA(MenuMorph)) {
             this.slide(aStringOrTextMorph);

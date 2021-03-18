@@ -185,7 +185,7 @@ SnapTranslator.dict.ca = {
     'translator_e-mail':
         'bernat@snap4arduino.rocks, jguille2@xtec.cat', // optional
     'last_changed':
-        '2020-08-31', // this, too, will appear in the Translators tab
+        '2021-03-14', // this, too, will appear in the Translators tab
 
     // GUI
     // control bar:
@@ -457,6 +457,8 @@ SnapTranslator.dict.ca = {
         'omple',
     'paste on %spr':
         'estampa sobre %spr',
+    'cut from %spr':
+        'retalla de %spr',
 
     // control:
     'when %greenflag clicked':
@@ -702,8 +704,20 @@ SnapTranslator.dict.ca = {
         'element %idx de %l',
     'all but first of %l':
         '%l sense el primer element',
-    'length of %l':
-        'longitud de %l',
+    '%la of %l':
+        '%la de %l',
+    'rank':
+        'rang',
+    'dimensions':
+        'dimensions',
+    'flatten':
+        'aplanament',
+    'columns':
+        'columnes',
+    'reverse':
+        'revers',
+    'lines':
+        'línies',
     '%l contains %s':
         '%l conté %s',
     'thing':
@@ -738,6 +752,8 @@ SnapTranslator.dict.ca = {
         'element',
     'append %lists':
         'annexa %lists',
+   'reshape %l to %nums':
+        'redimensiona %l a %nums',
     'add %s to %l':
         'afegeix %s a %l',
     'delete %ida of %l':
@@ -786,6 +802,14 @@ SnapTranslator.dict.ca = {
             + '(en navegadors que ho suportin)',
     'Save As...':
         'Anomena i desa...',
+    'Restore unsaved project':
+        'Recupera el projecte no desat',
+    'Clear backup':
+        'Esborra la còpia de seguretat',
+    'Backup failed.\nThis cannot be undone, proceed anyway?':
+        'La còpia de seguretat ha fallat.\nNo es podran desfer els canvis, voleu continuar?',
+    'Unsaved Changes!':
+        'Hi ha canvis sense desar!',
     'Import...':
         'Importa...',
     'file menu import hint':
@@ -833,6 +857,12 @@ SnapTranslator.dict.ca = {
         'Llibreries...',
     'Import library':
         'Importa una llibreria',
+    'Undelete sprites...':
+        'Recupera objectes...',
+    'Bring back deleted sprites':
+        'Recupera objectes esborrats',
+    'trash is empty':
+        'la paperera està buida',
 
     // cloud menu
     'Login...':
@@ -1003,6 +1033,10 @@ SnapTranslator.dict.ca = {
         'crea una còpia\ni fes-la servir',
     'only duplicate this block':
         'duplica només aquest bloc',
+    'extract':
+        'extreu',
+    'only grab this block':
+        'i fes servir només aquest bloc',
     'delete':
         'esborra\'m',
     'script pic...':
@@ -1029,6 +1063,10 @@ SnapTranslator.dict.ca = {
         'edita...',
     'duplicate block definition...':
         'duplica la definició d\'aquest bloc',
+    'export block definition...':
+        'exporta aquest bloc...',
+    'including dependencies':
+        'amb les seves dependències',
     'Same Named Blocks':
         'Blocs amb el mateix nom',
     'Another custom block with this name exists.\n':
@@ -1087,6 +1125,8 @@ SnapTranslator.dict.ca = {
         'desfés l\'últim moviment\nde blocs',
     'redrop':
         'refés',
+    'clear undrop queue':
+        'esborra la llista d\'accions desades', 
     'use the keyboard\nto enter blocks':
     	'utilitza el teclat\nper escriure els blocs',
     'scripts pic...':
@@ -2609,6 +2649,8 @@ SnapTranslator.dict.ca = {
         '%rel a %dst',
     'distance':
         'distància',
+    'ray length':
+        'distància de xoc',
     'costume':
         'vestit',
     'sound':
